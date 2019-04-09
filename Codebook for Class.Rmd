@@ -1,0 +1,27 @@
+---
+title: "Class Code"
+output: html_notebook
+---
+
+# Demonstrate Quantmod
+
+```{r package}
+
+library(quantmod)
+library(MTS)
+library(tidyverse)
+library(magrittr)
+
+
+```
+
+```{r quantmod}
+
+getSymbols("AMZN")
+chartSeries(AMZN)
+getSymbols("UNRATE", .src = "FRED")
+chartSeries(UNRATE)
+
+```
+
+
