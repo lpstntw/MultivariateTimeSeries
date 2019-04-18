@@ -19,9 +19,31 @@ library(magrittr)
 
 getSymbols("AMZN")
 chartSeries(AMZN)
-getSymbols("UNRATE", .src = "FRED")
+getSymbols("UNRATE", src = "FRED")
 chartSeries(UNRATE)
 
 ```
+
+```{r week 2}
+
+set.seed(1069)
+T2 <- 300
+k2 <- 3
+zt2 <- matrix(rnorm(T2*k2), T2, k2)
+
+MTSplot(zt2)
+
+ccm(zt2)
+
+mq(zt2)
+
+```
+
+
+
+
+
+
+
 
 

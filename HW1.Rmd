@@ -1,0 +1,216 @@
+---
+title: "HW1"
+author: "Po-Sheng Lee"
+date: "2019/4/14"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+```{r import package}
+
+library(quantmod)
+library(MTS)
+library(tidyverse)
+library(magrittr)
+library(lubridate)
+source("Corner.R")
+
+```
+
+
+# Question 2
+
+First, specify an ARMA model for Xt using function `arima`, specifying order at (3, 0, 0), which means three lags are included and no deadtime. Then, use `tsdiag` to diagnose the model fit. Ljung-Box statistics seems quite good in this model. 
+
+In another model not reported here, I build an ARMA model at the order of (2, 0, 0) and the Ljung-Box seems fairly good enough. However, given the function `tsdiag` do not use the right degree of freedom, the p-value of Ljung-Box is inflated. After taking this into account, it is more appropriate to build an ARMA model of xt at the order of (3, 0, 0).
+
+The results are shown as follows.
+
+```{r question 2-1}
+
+hw1 <- read.table("hw1-2.txt", skip = 1, col.names = c("yt", "xt"))
+
+m1 <- arima(x = hw1$xt, order = c(3, 0, 0), include.mean = FALSE)
+
+tsdiag(m1, gof.lag = 20)
+m1
+
+```
+
+For the transfer function, we use the pre-whitening method to obtain a preliminary estimation of impulse response function. Then, apply Corner method to obtain the best guess of (r,s,b) of transfer function. It is shown as follows and the vector of (r,s,b) derived from Corner method is (1,1,1)
+
+
+```{r question 2-2}
+
+xf <- m1$residuals
+f1 <- c(1, -m1$coef)
+yf <- stats::filter(hw1$yt, f1, method = "convolution", sides = 1)
+zt <- cbind(xf[4:500], yf[4:500])
+colnames(zt) <- c("xf", "yf")
+MTSplot(zt)
+ccm(zt)
+
+Corner(zt[,2], zt[,1])
+
+```
+
+Then, use the `tfm` function to determine the proper ARMA model for Nt. The partial autocorrelation of Nt shows that the proper lag should be 4. This is corrobrated by autocorrelation of residual. The final model will be $Y_{t} = 5.03 + \frac{3+2.02B}{1-0.8B}BX_{t} + \frac{a_{t}}{1-0.19B-0.52B^2+0.03B^3-0.002B^4}$
+
+```{r question 2-3}
+
+m2 <- tfm(hw1$yt, hw1$xt, b = 1, s = 1, p = 1)
+pacf(m2$nt)
+
+m2_1 <- tfm(hw1$yt, hw1$xt, b = 1, s = 1, p = 4)
+acf(m2_1$residuals)
+
+m2_2 <- tfm1(hw1$yt, hw1$xt, orderN = c(4,0,0), orderX = c(1,1,1))
+
+```
+
+# Question 3
+
+Import the data from FRED using `quantmod`. The unemployment is under the tag *UNRATE* and initial claim is under *ICSA*. Data preparation is as follows
+
+```{r question 3 data preperation}
+
+getSymbols("UNRATE", src = "FRED")
+chartSeries(UNRATE)
+getSymbols("ICSA", src = "FRED")
+chartSeries(ICSA)
+
+## The accessed data is not structured as a data frame, tidy it for further analysis 
+  
+ICSA <- cbind(index(ICSA), as_data_frame(ICSA))
+colnames(ICSA) <- c("date", "claims")
+ICSA %<>%
+  separate(date, into = c("year", "mon", "day"), sep = "-") %>%
+  group_by(year, mon) %>%
+  summarize(claims = mean(claims)) %>%
+  ungroup()
+
+UNRATE <- cbind(index(UNRATE), as_data_frame(UNRATE))
+colnames(UNRATE) <- c("date", "unrate")
+UNRATE %<>%
+  separate(date, into = c("year", "mon", "day"), sep = "-")
+
+unrate_claim_ts <- ICSA %>%
+  left_join(UNRATE, by = c("year", "mon")) %>%
+  select(claims, unrate) %>%
+  drop_na()
+
+MTSplot(unrate_claim_ts)
+
+```
+
+Then, employ the `VARorder` to determine the AR order. Based on the AIC, the proper order for claims should be 7 and 13 for the unemployment rate. Then use the arima to estimate and refine the model. The scalar model can be written as follows
+
+For claims: $x_{t}= 1.1x_{t-1}-0.085x_{t-2}-0.076x_{t-5}+0.15x+{t-6}-0.12x+{t-7}+343287 $
+For unemployment rate: $y_{t} = 1.04y_{t-1}+0.1y_{t-2}-0.072y_{t-5}+0.069y_{t-11}-0.19y_{t-12}+0.11y_{t-13} +5.92$
+```{r question 3-1}
+
+## Use VARorder to determine the AR model
+VARorder(unrate_claim_ts$claims, maxp = 20)
+VARorder(unrate_claim_ts$unrate, maxp = 20)
+
+m3 <- arima(unrate_claim_ts$claims, order = c(7,0,0))
+m3
+m3_r <- arima(unrate_claim_ts$claims, order = c(7,0,0), fixed = c(NA, NA, 0, 0, NA, NA, NA, NA))
+m3_r
+tsdiag(m3_r, gof.lag = 24)
+
+m3_1 <- arima(unrate_claim_ts$unrate, order = c(13,0,0))
+m3_1
+m3_1_r <- arima(unrate_claim_ts$unrate, order = c(13,0,0), fixed = c(NA, NA, 0, 0, NA, 0, NA, 0, 0, 0, NA, NA, NA, NA))
+m3_1_r
+tsdiag(m3_1_r, gof.lag = 24)
+
+
+```
+
+The Granger Causality can be tested by `GrangerTest` in `MTS`. Using AR(13) model, we find that both direction has a high p-value, thus resulting in no unidirectional causality.
+
+
+```{r question 3-2}
+
+VARorder(unrate_claim_ts)
+
+GrangerTest(unrate_claim_ts, p = 12, locInput = c(1))
+GrangerTest(unrate_claim_ts, p = 12, locInput = c(2))
+
+
+```
+
+# Question 4
+
+Get the time series data with `quantmod`. The price report time of crude oil is three days ahead (or four days lag) of the regular gas. I take the crude oil price as being ahead of the regular oil; therefore I add three days to the pricing day of crude oil.
+
+```{r question 4 data preparation}
+
+getSymbols("WCOILWTICO", src = "FRED")
+chartSeries(WCOILWTICO)
+getSymbols("GASREGCOVW", src = "FRED")
+chartSeries(GASREGCOVW)
+
+
+crude_oil <- cbind(index(WCOILWTICO), as_data_frame(WCOILWTICO))
+colnames(crude_oil) <- c("date", "crude")
+crude_oil %<>%
+  mutate(date = date + 3)
+
+reg_gas <- cbind(index(GASREGCOVW), as_data_frame(GASREGCOVW))
+colnames(reg_gas) <- c("date", "reg")
+
+i <- ymd("1996-01-01") %--% ymd("2018-12-31")
+
+oil_ts <- crude_oil %>%
+  left_join(reg_gas) %>%
+  drop_na() %>%
+  mutate(date = as_date(date)) %>%
+  filter(date %within% i) %>%
+  mutate(crude = log10(crude), reg = log10(reg)) %>%
+  select(crude, reg)
+
+MTSplot(oil_ts)
+
+```
+
+Use `VARorder` and `GrangerTest` to see whether there is Granger Caulsality among these tow variables. Use AR(9) to test the Granger Causality. No unidirectional causality is detected.
+
+```{r question 4 Granger Causality}
+
+VARorder(oil_ts)
+GrangerTest(oil_ts, p = 9, locInput = c(1))
+GrangerTest(oil_ts, p = 9, locInput = c(2))
+
+```
+
+# Question 5 
+
+The plot and ccm is shown below. Multivariate Ljung-Box statistic rejects the null hypothesis that $\rho_{i}=0$
+
+```{r VARMAsim}
+
+c <- matrix(c(.9, -.3, .4, .6), 2, 2)
+s <- matrix(c(1.5, .3, .3, 1), 2, 2)
+
+m5 <- VARMAsim(200, arlags=c(1) , phi= c , sigma= s )
+zt5 <- m5$series
+
+MTSplot(zt5)
+zt5_ccm <- ccm(zt5, lag = 3)
+zt5_ccm$ccm
+
+mq(zt5, lag = 5)
+
+```
+
+
+
+
+
+
+
