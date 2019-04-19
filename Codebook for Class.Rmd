@@ -39,6 +39,54 @@ mq(zt2)
 
 ```
 
+```{r week 3}
+
+gasfur <- read_table("gasfur.txt")
+colnames(gasfur) <- c("xt", "yt")
+MTSplot(gasfur)
+VARorder(gasfur)
+
+# aic bic hq -> the lowest 
+# sequential p -> see what is the last significant
+
+gasfur_m <- VAR(gasfur, 6)
+# the AR matrix and two s.d. estimate can give you a sense of which is significant
+
+names(gasfur_m)
+# phi as the coefficient of AR model
+# Sigma as the 
+
+MTSdiag(gasfur_m)
+# the residual matrix of eveything
+
+gasfur_mr <- refVAR(gasfur_m, thres = 1.5) 
+# thres as t-ratio threshold
+# see whether aic drops or rise...if drops, then that's good
+
+gasfur_mpr <- VARpred(gasfur_mr, 4)
+# prediction at four 
+
+k1 <- VARpsi(gasfur_mr$Phi)
+# calculate the MA psi representation
+
+VARirf(gasfur_mr$Phi, gasfur_mr$Sigma, lag = 24)
+# the plot tells you about the MA representation of two time series 
+# 1,1, 2,2 => autoregression, 
+# 2,1 => second series as input , first as response (no effect, indicating Granger)
+# first plot is the everystep impact
+# second plot is the accumulative impact
+
+VARchi(gasfur, p =6)
+# reconfirm the threshold and zero is okay
+
+GrangerTest(gasfur, p = 6, locInput = c(1))
+# the p value here is to see whether to put zero on the first six lag of 1,2 is plausible
+# the null hypo is all lag p of 1,2 equals zero
+# what we want to find is a high p, not to reject the null
+
+
+
+```
 
 
 

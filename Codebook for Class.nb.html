@@ -243,14 +243,64 @@ $(document).ready(function () {
 <h1>Demonstrate Quantmod</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5saWJyYXJ5KHF1YW50bW9kKVxubGlicmFyeShNVFMpXG5saWJyYXJ5KHRpZHl2ZXJzZSlcbmxpYnJhcnkobWFncml0dHIpXG5cblxuYGBgIn0= -->
-<pre class="r"><code>
-library(quantmod)
-library(MTS)
-library(tidyverse)
-library(magrittr)
-</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShxdWFudG1vZClcbmBgYCJ9 -->
+<pre class="r"><code>library(quantmod)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiB4dHNcbkxvYWRpbmcgcmVxdWlyZWQgcGFja2FnZTogem9vXG5cbkF0dGFjaGluZyBwYWNrYWdlOiDigJh6b2/igJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOmJhc2XigJk6XG5cbiAgICBhcy5EYXRlLCBhcy5EYXRlLm51bWVyaWNcblxuTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBUVFJcblZlcnNpb24gMC40LTAgaW5jbHVkZWQgbmV3IGRhdGEgZGVmYXVsdHMuIFNlZSA/Z2V0U3ltYm9scy5cbkxlYXJuIGZyb20gYSBxdWFudG1vZCBhdXRob3I6IGh0dHBzOi8vd3d3LmRhdGFjYW1wLmNvbS9jb3Vyc2VzL2ltcG9ydGluZy1hbmQtbWFuYWdpbmctZmluYW5jaWFsLWRhdGEtaW4tclxuIn0= -->
+<pre><code>Loading required package: xts
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+Loading required package: TTR
+Version 0.4-0 included new data defaults. See ?getSymbols.
+Learn from a quantmod author: https://www.datacamp.com/courses/importing-and-managing-financial-data-in-r</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShNVFMpXG5gYGAifQ== -->
+<pre class="r"><code>library(MTS)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYTVRT4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6VFRS4oCZOlxuXG4gICAgVk1BXG4ifQ== -->
+<pre><code>
+Attaching package: ‘MTS’
+
+The following object is masked from ‘package:TTR’:
+
+    VMA</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5gYGAifQ== -->
+<pre class="r"><code>library(tidyverse)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXHUwMDFiWzM3beKUgCBcdTAwMWJbMW1BdHRhY2hpbmcgcGFja2FnZXNcdTAwMWJbMjJtIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgCB0aWR5dmVyc2UgMS4yLjEg4pSAXHUwMDFiWzM5bVxuXHUwMDFiWzM3bVx1MDAxYlszMm3inJRcdTAwMWJbMzdtIFx1MDAxYlszNG1nZ3Bsb3QyXHUwMDFiWzM3bSAzLjEuMCAgICAgICBcdTAwMWJbMzJt4pyUXHUwMDFiWzM3bSBcdTAwMWJbMzRtcHVycnIgIFx1MDAxYlszN20gMC4zLjAgIFxuXHUwMDFiWzMybeKclFx1MDAxYlszN20gXHUwMDFiWzM0bXRpYmJsZSBcdTAwMWJbMzdtIDIuMC4xICAgICAgIFx1MDAxYlszMm3inJRcdTAwMWJbMzdtIFx1MDAxYlszNG1kcGx5ciAgXHUwMDFiWzM3bSAwLjguMC5cdTAwMWJbMzFtMVx1MDAxYlszN21cblx1MDAxYlszMm3inJRcdTAwMWJbMzdtIFx1MDAxYlszNG10aWR5ciAgXHUwMDFiWzM3bSAwLjguMiAgICAgICBcdTAwMWJbMzJt4pyUXHUwMDFiWzM3bSBcdTAwMWJbMzRtc3RyaW5nclx1MDAxYlszN20gMS40LjAgIFxuXHUwMDFiWzMybeKclFx1MDAxYlszN20gXHUwMDFiWzM0bXJlYWRyICBcdTAwMWJbMzdtIDEuMy4xICAgICAgIFx1MDAxYlszMm3inJRcdTAwMWJbMzdtIFx1MDAxYlszNG1mb3JjYXRzXHUwMDFiWzM3bSAwLjQuMCAgXHUwMDFiWzM5bVxuXHUwMDFiWzM3beKUgCBcdTAwMWJbMW1Db25mbGljdHNcdTAwMWJbMjJtIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgCB0aWR5dmVyc2VfY29uZmxpY3RzKCkg4pSAXG5cdTAwMWJbMzFt4pyWXHUwMDFiWzM3bSBcdTAwMWJbMzRtZHBseXJcdTAwMWJbMzdtOjpcdTAwMWJbMzJtZmlsdGVyKClcdTAwMWJbMzdtIG1hc2tzIFx1MDAxYlszNG1zdGF0c1x1MDAxYlszN206OmZpbHRlcigpXG5cdTAwMWJbMzFt4pyWXHUwMDFiWzM3bSBcdTAwMWJbMzRtZHBseXJcdTAwMWJbMzdtOjpcdTAwMWJbMzJtZmlyc3QoKVx1MDAxYlszN20gIG1hc2tzIFx1MDAxYlszNG14dHNcdTAwMWJbMzdtOjpmaXJzdCgpXG5cdTAwMWJbMzFt4pyWXHUwMDFiWzM3bSBcdTAwMWJbMzRtZHBseXJcdTAwMWJbMzdtOjpcdTAwMWJbMzJtbGFnKClcdTAwMWJbMzdtICAgIG1hc2tzIFx1MDAxYlszNG1zdGF0c1x1MDAxYlszN206OmxhZygpXG5cdTAwMWJbMzFt4pyWXHUwMDFiWzM3bSBcdTAwMWJbMzRtZHBseXJcdTAwMWJbMzdtOjpcdTAwMWJbMzJtbGFzdCgpXHUwMDFiWzM3bSAgIG1hc2tzIFx1MDAxYlszNG14dHNcdTAwMWJbMzdtOjpsYXN0KClcdTAwMWJbMzltXG4ifQ== -->
+<pre><code>[37m─ [1mAttaching packages[22m ──────────────────────────────── tidyverse 1.2.1 ─[39m
+[37m[32m✔[37m [34mggplot2[37m 3.1.0       [32m✔[37m [34mpurrr  [37m 0.3.0  
+[32m✔[37m [34mtibble [37m 2.0.1       [32m✔[37m [34mdplyr  [37m 0.8.0.[31m1[37m
+[32m✔[37m [34mtidyr  [37m 0.8.2       [32m✔[37m [34mstringr[37m 1.4.0  
+[32m✔[37m [34mreadr  [37m 1.3.1       [32m✔[37m [34mforcats[37m 0.4.0  [39m
+[37m─ [1mConflicts[22m ───────────────────────────────── tidyverse_conflicts() ─
+[31m✖[37m [34mdplyr[37m::[32mfilter()[37m masks [34mstats[37m::filter()
+[31m✖[37m [34mdplyr[37m::[32mfirst()[37m  masks [34mxts[37m::first()
+[31m✖[37m [34mdplyr[37m::[32mlag()[37m    masks [34mstats[37m::lag()
+[31m✖[37m [34mdplyr[37m::[32mlast()[37m   masks [34mxts[37m::last()[39m</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShtYWdyaXR0cilcbmBgYCJ9 -->
+<pre class="r"><code>library(magrittr)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYbWFncml0dHLigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g4oCYcGFja2FnZTpwdXJycuKAmTpcblxuICAgIHNldF9uYW1lc1xuXG5UaGUgZm9sbG93aW5nIG9iamVjdCBpcyBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnRpZHly4oCZOlxuXG4gICAgZXh0cmFjdFxuIn0= -->
+<pre><code>
+Attaching package: ‘magrittr’
+
+The following object is masked from ‘package:purrr’:
+
+    set_names
+
+The following object is masked from ‘package:tidyr’:
+
+    extract</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
@@ -401,9 +451,83 @@ Hit Enter for p-value plot of individual ccm:  </code></pre>
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuR3JhbmdlclRlc3QoZ2FzZnVyLCBwID0gNiwgbG9jSW5wdXQgPSBjKDEpKVxuXG5gYGAifQ== -->
+<pre class="r"><code>GrangerTest(gasfur, p = 6, locInput = c(1))
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTnVtYmVyIG9mIHRhcmdldGVkIHplcm8gcGFyYW1ldGVyczogIDYgXG5DaGktc3F1YXJlIHRlc3QgZm9yIEdyYW5nZXIgQ2F1c2FsaXR5IGFuZCBwLXZhbHVlOiAgNS43MjMyNzUgMC40NTQ4OTE4IFxuQ29uc3RhbnQgdGVybTogXG5Fc3RpbWF0ZXM6ICAtMC4wMDM5NDk0ODQgMy44Mjg2NzYgXG5TdGQuRXJyb3I6ICAwLjAxMTE1MzE1IDAuODU3MTU3MyBcbkFSIGNvZWZmaWNpZW50IG1hdHJpeCBcbkFSKCAxICktbWF0cml4IFxuICAgICAgIFssMV0gWywyXVxuWzEsXSAxLjkzMjcgMC4wMFxuWzIsXSAwLjA2MzcgMS41NFxuc3RhbmRhcmQgZXJyb3IgXG4gICAgICAgWywxXSAgIFssMl1cblsxLF0gMC4wNTkyIDAuMDAwMFxuWzIsXSAwLjA3NjIgMC4wNTk5XG5BUiggMiApLW1hdHJpeCBcbiAgICAgICBbLDFdICAgWywyXVxuWzEsXSAtMS4yMDkgIDAuMDAwXG5bMixdIC0wLjEzNSAtMC41OTNcbnN0YW5kYXJkIGVycm9yIFxuICAgICAgWywxXSBbLDJdXG5bMSxdIDAuMTI4IDAuMDBcblsyLF0gMC4xNjUgMC4xMVxuQVIoIDMgKS1tYXRyaXggXG4gICAgICAgWywxXSAgIFssMl1cblsxLF0gIDAuMTg3ICAwLjAwMFxuWzIsXSAtMC40NDAgLTAuMTcxXG5zdGFuZGFyZCBlcnJvciBcbiAgICAgIFssMV0gIFssMl1cblsxLF0gMC4xNDcgMC4wMDBcblsyLF0gMC4xODkgMC4xMTVcbkFSKCA0ICktbWF0cml4IFxuICAgICAgIFssMV0gIFssMl1cblsxLF0gLTAuMTI3IDAuMDAwXG5bMixdICAwLjE1MSAwLjEzMlxuc3RhbmRhcmQgZXJyb3IgXG4gICAgICBbLDFdICBbLDJdXG5bMSxdIDAuMTQ3IDAuMDAwXG5bMixdIDAuMTkxIDAuMTE1XG5BUiggNSApLW1hdHJpeCBcbiAgICAgICBbLDFdICAgWywyXVxuWzEsXSAgMC4yODAgMC4wMDAwXG5bMixdIC0wLjEyMSAwLjA1NjhcbnN0YW5kYXJkIGVycm9yIFxuICAgICAgWywxXSAgWywyXVxuWzEsXSAwLjEyOCAwLjAwMFxuWzIsXSAwLjE4MCAwLjEwMVxuQVIoIDYgKS1tYXRyaXggXG4gICAgICAgWywxXSAgICBbLDJdXG5bMSxdIC0wLjExNiAgMC4wMDAwXG5bMixdICAwLjI0OSAtMC4wNDE5XG5zdGFuZGFyZCBlcnJvciBcbiAgICAgICBbLDFdICBbLDJdXG5bMSxdIDAuMDU5MSAwLjAwMFxuWzIsXSAwLjEwOTkgMC4wNDNcbiAgXG5SZXNpZHVhbHMgY292LW10eDogXG4gICAgICAgICAgICAgWywxXSAgICAgICAgIFssMl1cblsxLF0gIDAuMDM0OTEyNDkwIC0wLjAwMjMwMzIwMlxuWzIsXSAtMC4wMDIzMDMyMDIgIDAuMDU1ODMxNzI0XG4gIFxuZGV0KFNTRSkgPSAgMC4wMDE5NDM5MiBcbkFJQyA9ICAtNi4xMjEwMTUgXG5CSUMgPSAgLTUuODk2MDQ3IFxuSFEgID0gIC02LjAzMDkzMiBcbiJ9 -->
+<pre><code>Number of targeted zero parameters:  6 
+Chi-square test for Granger Causality and p-value:  5.723275 0.4548918 
+Constant term: 
+Estimates:  -0.003949484 3.828676 
+Std.Error:  0.01115315 0.8571573 
+AR coefficient matrix 
+AR( 1 )-matrix 
+       [,1] [,2]
+[1,] 1.9327 0.00
+[2,] 0.0637 1.54
+standard error 
+       [,1]   [,2]
+[1,] 0.0592 0.0000
+[2,] 0.0762 0.0599
+AR( 2 )-matrix 
+       [,1]   [,2]
+[1,] -1.209  0.000
+[2,] -0.135 -0.593
+standard error 
+      [,1] [,2]
+[1,] 0.128 0.00
+[2,] 0.165 0.11
+AR( 3 )-matrix 
+       [,1]   [,2]
+[1,]  0.187  0.000
+[2,] -0.440 -0.171
+standard error 
+      [,1]  [,2]
+[1,] 0.147 0.000
+[2,] 0.189 0.115
+AR( 4 )-matrix 
+       [,1]  [,2]
+[1,] -0.127 0.000
+[2,]  0.151 0.132
+standard error 
+      [,1]  [,2]
+[1,] 0.147 0.000
+[2,] 0.191 0.115
+AR( 5 )-matrix 
+       [,1]   [,2]
+[1,]  0.280 0.0000
+[2,] -0.121 0.0568
+standard error 
+      [,1]  [,2]
+[1,] 0.128 0.000
+[2,] 0.180 0.101
+AR( 6 )-matrix 
+       [,1]    [,2]
+[1,] -0.116  0.0000
+[2,]  0.249 -0.0419
+standard error 
+       [,1]  [,2]
+[1,] 0.0591 0.000
+[2,] 0.1099 0.043
+  
+Residuals cov-mtx: 
+             [,1]         [,2]
+[1,]  0.034912490 -0.002303202
+[2,] -0.002303202  0.055831724
+  
+det(SSE) =  0.00194392 
+AIC =  -6.121015 
+BIC =  -5.896047 
+HQ  =  -6.030932 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ2xhc3MgQ29kZSIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBEZW1vbnN0cmF0ZSBRdWFudG1vZAoKYGBge3IgcGFja2FnZX0KCmxpYnJhcnkocXVhbnRtb2QpCmxpYnJhcnkoTVRTKQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShtYWdyaXR0cikKCgpgYGAKCmBgYHtyIHF1YW50bW9kfQoKZ2V0U3ltYm9scygiQU1aTiIpCmNoYXJ0U2VyaWVzKEFNWk4pCmdldFN5bWJvbHMoIlVOUkFURSIsIHNyYyA9ICJGUkVEIikKY2hhcnRTZXJpZXMoVU5SQVRFKQoKYGBgCgpgYGB7ciB3ZWVrIDJ9CgpzZXQuc2VlZCgxMDY5KQpUMiA8LSAzMDAKazIgPC0gMwp6dDIgPC0gbWF0cml4KHJub3JtKFQyKmsyKSwgVDIsIGsyKQoKTVRTcGxvdCh6dDIpCgpjY20oenQyKQoKbXEoenQyKQoKYGBgCgoKCgoKCgoKCg==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiQ2xhc3MgQ29kZSIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKIyBEZW1vbnN0cmF0ZSBRdWFudG1vZAoKYGBge3IgcGFja2FnZX0KCmxpYnJhcnkocXVhbnRtb2QpCmxpYnJhcnkoTVRTKQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShtYWdyaXR0cikKCgpgYGAKCmBgYHtyIHF1YW50bW9kfQoKZ2V0U3ltYm9scygiQU1aTiIpCmNoYXJ0U2VyaWVzKEFNWk4pCmdldFN5bWJvbHMoIlVOUkFURSIsIHNyYyA9ICJGUkVEIikKY2hhcnRTZXJpZXMoVU5SQVRFKQoKYGBgCgpgYGB7ciB3ZWVrIDJ9CgpzZXQuc2VlZCgxMDY5KQpUMiA8LSAzMDAKazIgPC0gMwp6dDIgPC0gbWF0cml4KHJub3JtKFQyKmsyKSwgVDIsIGsyKQoKTVRTcGxvdCh6dDIpCgpjY20oenQyKQoKbXEoenQyKQoKYGBgCgpgYGB7ciB3ZWVrIDN9CgpnYXNmdXIgPC0gcmVhZF90YWJsZSgiZ2FzZnVyLnR4dCIpCmNvbG5hbWVzKGdhc2Z1cikgPC0gYygieHQiLCAieXQiKQpNVFNwbG90KGdhc2Z1cikKVkFSb3JkZXIoZ2FzZnVyKQoKIyBhaWMgYmljIGhxIC0+IHRoZSBsb3dlc3QgCiMgc2VxdWVudGlhbCBwIC0+IHNlZSB3aGF0IGlzIHRoZSBsYXN0IHNpZ25pZmljYW50CgpnYXNmdXJfbSA8LSBWQVIoZ2FzZnVyLCA2KQojIHRoZSBBUiBtYXRyaXggYW5kIHR3byBzLmQuIGVzdGltYXRlIGNhbiBnaXZlIHlvdSBhIHNlbnNlIG9mIHdoaWNoIGlzIHNpZ25pZmljYW50CgpuYW1lcyhnYXNmdXJfbSkKIyBwaGkgYXMgdGhlIGNvZWZmaWNpZW50IG9mIEFSIG1vZGVsCiMgU2lnbWEgYXMgdGhlIAoKTVRTZGlhZyhnYXNmdXJfbSkKIyB0aGUgcmVzaWR1YWwgbWF0cml4IG9mIGV2ZXl0aGluZwoKZ2FzZnVyX21yIDwtIHJlZlZBUihnYXNmdXJfbSwgdGhyZXMgPSAxLjUpIAojIHRocmVzIGFzIHQtcmF0aW8gdGhyZXNob2xkCiMgc2VlIHdoZXRoZXIgYWljIGRyb3BzIG9yIHJpc2UuLi5pZiBkcm9wcywgdGhlbiB0aGF0J3MgZ29vZAoKZ2FzZnVyX21wciA8LSBWQVJwcmVkKGdhc2Z1cl9tciwgNCkKIyBwcmVkaWN0aW9uIGF0IGZvdXIgCgprMSA8LSBWQVJwc2koZ2FzZnVyX21yJFBoaSkKIyBjYWxjdWxhdGUgdGhlIE1BIHBzaSByZXByZXNlbnRhdGlvbgoKVkFSaXJmKGdhc2Z1cl9tciRQaGksIGdhc2Z1cl9tciRTaWdtYSwgbGFnID0gMjQpCiMgdGhlIHBsb3QgdGVsbHMgeW91IGFib3V0IHRoZSBNQSByZXByZXNlbnRhdGlvbiBvZiB0d28gdGltZSBzZXJpZXMgCiMgMSwxLCAyLDIgPT4gYXV0b3JlZ3Jlc3Npb24sIAojIDIsMSA9PiBzZWNvbmQgc2VyaWVzIGFzIGlucHV0ICwgZmlyc3QgYXMgcmVzcG9uc2UgKG5vIGVmZmVjdCwgaW5kaWNhdGluZyBHcmFuZ2VyKQojIGZpcnN0IHBsb3QgaXMgdGhlIGV2ZXJ5c3RlcCBpbXBhY3QKIyBzZWNvbmQgcGxvdCBpcyB0aGUgYWNjdW11bGF0aXZlIGltcGFjdAoKVkFSY2hpKGdhc2Z1ciwgcCA9NikKIyByZWNvbmZpcm0gdGhlIHRocmVzaG9sZCBhbmQgemVybyBpcyBva2F5CgpHcmFuZ2VyVGVzdChnYXNmdXIsIHAgPSA2LCBsb2NJbnB1dCA9IGMoMSkpCiMgdGhlIHAgdmFsdWUgaGVyZSBpcyB0byBzZWUgd2hldGhlciB0byBwdXQgemVybyBvbiB0aGUgZmlyc3Qgc2l4IGxhZyBvZiAxLDIgaXMgcGxhdXNpYmxlCiMgdGhlIG51bGwgaHlwbyBpcyBhbGwgbGFnIHAgb2YgMSwyIGVxdWFscyB6ZXJvCiMgd2hhdCB3ZSB3YW50IHRvIGZpbmQgaXMgYSBoaWdoIHAsIG5vdCB0byByZWplY3QgdGhlIG51bGwKCgoKYGBgCgoKCgoKCgoK</div>
 
 
 
