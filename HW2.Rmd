@@ -1,0 +1,181 @@
+---
+title: "HW2"
+author: "Po-Sheng Lee"
+date: "2019/4/28"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, cache = TRUE, autodep = TRUE)
+```
+
+```{r import package}
+
+library(quantmod)
+library(MTS)
+library(tidyverse)
+library(magrittr)
+library(lubridate)
+library(knitr)
+
+```
+
+# Question 1
+
+\newcommand{\mx}[1]{\mathbf{#1}}
+
+- After using aic criteria to choose the VARorder be set at 19 and refining the model with t threshold = 1.645. In the refined model, the value of aic drops, which indicates a good refine. The final fitted model can be written as follows.
+
+$$\mx{z_{t}} = \mx{\phi_{0}}+\sum_{i=1}^{19}\mx{\phi_{i}z_{t-i}}+\mx{a_{t}}$$, 
+
+where $\phi_{0} = (0.31, 0, 0.07)$ and $\mx{\phi_{1}} = \left[\begin{array}{rrr}1.22 & 0 & 0.12 \\0.84 & 0.83 & 0.16 \\0.26 & 0 & 1.58\end{array}\right]$, $\mx{\phi_{2}} = \left[\begin{array}{rrr}0.14 & -0.17 & 0 \\-0.70 & 0 & 0 \\-0.28 & 0 & -0.34\end{array}\right]$,$\mx{\phi_{3}} = \left[\begin{array}{rrr}-0.12 & 0 & -0.167 \\0 & 0 & 0 \\0 & 0 & -0.33\end{array}\right]$,$\mx{\phi_{4}} = \left[\begin{array}{rrr}-0.26 & 0 & 0 \\0 & 0 & 0 \\0 & -0.02 & 0\end{array}\right]$,$\mx{\phi_{5}} = \left[\begin{array}{rrr}-0.15 & 0 & 0 \\0 & 0.19 & -0.42 \\0 & 0 & 0\end{array}\right]$,$\mx{\phi_{6}} = \left[\begin{array}{rrr}0 & 0 & 0.23 \\0 & 0.05 & 0 \\0 & 0 & 0.02\end{array}\right]$,$\mx{\phi_{7}} = \left[\begin{array}{rrr}0.17 & 0.03 & 0 \\0 & 0.09 & 0.52 \\0.2 & 0.02 & 0\end{array}\right]$,$\mx{\phi_{8}} = \left[\begin{array}{rrr}0 & -0.03 & -0.05 \\0 & -0.19 & 0 \\-0.24 & -0.02 & 0\end{array}\right]$,$\mx{\phi_{9}} = \left[\begin{array}{rrr}0.11 & 0 & 0 \\0 & 0 & 0 \\0.21 & 0 & 0\end{array}\right]$,$\mx{\phi_{10}} = \left[\begin{array}{rrr}-0.14 & 0 & 0 \\-0.10 & 0 & 0 \\-0.19 & 0 & 0\end{array}\right]$,$\mx{\phi_{11}} = \left[\begin{array}{rrr}0 & 0 & 0 \\0 & 0.19 & -0.42 \\0 & 0 & -0.13\end{array}\right]$,$\mx{\phi_{12}} = \left[\begin{array}{rrr}0 & -0.02 & 0 \\0 & 0.41 & 0 \\0 & 0 & 0.11\end{array}\right]$,$\mx{\phi_{13}} = \left[\begin{array}{rrr}0 & 0.02 & 0 \\0 & -0.3 & 0.26 \\0 & 0 & 0\end{array}\right]$,$\mx{\phi_{14}} = \left[\begin{array}{rrr}0.04 & 0 & 0 \\0 & -0.19 & 0 \\0.21 & 0 & 0\end{array}\right]$,$\mx{\phi_{15}} = \left[\begin{array}{rrr}0 & 0.01 & 0 \\0 & 0 & 0 \\-0.17 & 0.02 & 0\end{array}\right]$,$\mx{\phi_{16}=0}$,$\mx{\phi_{17}=0}$,$\mx{\phi_{18}} = \left[\begin{array}{rrr}-0.03 & -0.03 & 0 \\0 & -0.14 & -0.08 \\0 & -0.02 & 0\end{array}\right]$,$\mx{\phi_{19}} = \left[\begin{array}{rrr}0 & 0.02 & 0 \\0 & 0.23 & 0 \\0 & 0 & 0\end{array}\right]$
+
+and $\sum{_a} = \left[\begin{array}{}0.003 & 0.001 & 0.001 \\0.001 & 0.08 & 0.004 \\0.001 & 0.004 &0.009\end{array}\right]$
+
+where $z_{1t}$ is unemployment rate of Iowa, $z_{2t}$ is unemployemnt rate of Illinois, and $z_{3t}$ is unemployment rate of Indiana.
+
+- The residual plot shows some outlier in  around time 200, which is around the beginning of 1990's.
+
+- The plot of impulse response function is shown below 
+
+
+```{r q1}
+
+getSymbols("ILURN", src = "FRED") # Illinois
+getSymbols("IAUR", src = "FRED") # Iowa
+getSymbols("INUR", src = "FRED") # Indiana
+
+da1 <- cbind(IAUR, ILURN, INUR)
+da1 <- da1[1:518,] %>%
+  as.data.frame()
+
+VARorder(da1, maxp = 20)
+m1 <- VAR(da1, p = 19)
+m1r <- refVAR(m1, thres = 1.645)
+MTSdiag(m1r)
+VARirf(m1r$Phi, m1r$Sigma, lag = 24)
+
+```
+
+
+# Question 2
+
+```{r q2}
+da2 <- read_table("m-CNM1COIL.txt") %>%
+  column_to_rownames(var = "Date")
+```
+
+- The time series plot is shown below
+
+```{r}
+MTSplot(da2)
+```
+
+
+- Based on BIC criteria, I use AR(3) model. The fitted model can be written as $\mx{z_{t}} = \mx{\phi_{0}}+\sum_{i=1}^{3}\mx{\phi_{i}z_{t-i}}+\mx{a_{t}}$, where 
+
+$\phi_{0} = (0.46, 0)$ and $\mx{\phi_{1}} = \left[\begin{array}{rr}0.71 & 0 \\0 & 0.3\end{array}\right]$, $\mx{\phi_{2}} = \left[\begin{array}{rr}-0.44 & 0 \\0 & 0\end{array}\right]$, $\mx{\phi_{3}} = \left[\begin{array}{rr}0.38 & 0 \\0 & 0\end{array}\right]$ and 
+$\sum_a = \left[\begin{array}0.89 & 0.006\\0.006 & 0.007\end{array}\right]$
+
+```{r}
+VARorder(da2)
+m2 <- VAR(da2, p = 3)
+m2r <- refVAR(m2, thres = 1.645)
+MTSdiag(m2r)
+```
+
+- Chi square test for t-ratio = 1.645 seems to be good. We can confidently to set these coefficeints to zero.
+
+```{r}
+VARchi(da2, p = 6, thres = 1.645)
+```
+
+- There is no transfer function for these two time series. The estimated coefficient matrices are all diagnol, which indicates that there's no correlation between the two time series. This can also be corroborated by the impulse response function
+
+- The impulse response function below shows that there is only autoregression part of the two time series and there's barely impact of one time series on another.
+
+```{r}
+VARirf(m2r$Phi, m2r$Sigma, lag = 24)
+```
+
+- One step and four step prediction is shown in the result below
+
+```{r q2 report}
+VARpred(m2r, h = 4)
+```
+
+- Decomposition of forecast error variance is shown below
+
+```{r}
+FEVdec(Phi = m2r$Phi, Theta = NULL, Sig = m2r$Sigma)
+```
+
+# Question 3
+
+For the priors in Bayesian estimation, I choose $\mathit{\mathbf{C}} = 0.01\times\mathbf{\mathit{I_7}}$ and $\mathbf{V_0} = \mathbf{\mathit{I_2}}$. The Bayesian estimate is shown below. We can see that it is not so different from the least square estimation from the function `VAR`. 
+
+```{r}
+BVAR(da2, p = 3, C = 0.01*diag(7), V0 = diag(2))
+```
+
+
+# Question 4
+
+- The plot of the log export and import is shown below.
+
+```{r}
+da4 <- read_table("m-CNEXIM.txt") %>%
+  column_to_rownames(var = "Date") %>%
+  mutate(EX = log10(EX), IM = log10(IM)) %>%
+  mutate(EX = c(diff(EX), NA), IM = c(diff(IM), NA)) %>%
+  drop_na()
+
+da4_1 <- read_table("m-CNEXIM.txt") %>%
+  column_to_rownames(var = "Date") %>%
+  log10() %>%
+  diffM()
+
+da4_2 <- read_table("m-CNEXIM.txt") %>%
+  column_to_rownames(var = "Date") %>%
+  mutate(EX_d = (c(NA, diff(EX))/EX), IM_d = (c(NA, diff(IM))/IM)) %>%
+  drop_na() %>%
+  select(EX_d, IM_d)
+
+MTSplot(da4)
+
+```
+
+- Using aic criteria, we set the order to be 12. The fitted model can be written as  $\mx{z_{t}} = \mx{\phi_{0}}+\sum_{i=1}^{12}\mx{\phi_{i}z_{t-i}}+\mx{a_{t}}$, where 
+
+$\phi_{0} = (0.007, 0.005)$ and $\mx{\phi_{1}} = \left[\begin{array}{rr}-0.59 & 0.17 \\0 & -0.44\end{array}\right]$, $\mx{\phi_{2}} = \left[\begin{array}{rr}-0.24 & 0.16 \\0 & 0\end{array}\right]$, $\mx{\phi_{3}} = \left[\begin{array}{rr}0 & 0.11 \\0 & 0\end{array}\right]$, $\mx{\phi_{4}} = \left[\begin{array}{rr}0 & 0.13 \\0 & 0.12\end{array}\right]$, $\mx{\phi_{5}} = \left[\begin{array}{rr}0 & 0.14 \\0 & 0.09\end{array}\right]$, $\mx{\phi_{6}} = \mx{\phi_{7}} = \mx{\phi_{8}} = \mx{\phi_{9}} = 0$, $\mx{\phi_{10}} = \left[\begin{array}{rr}0 & 0 \\0 & 0.13\end{array}\right]$, $\mx{\phi_{11}} = \left[\begin{array}{rr}0 & -0.10 \\0.17 & 0\end{array}\right]$, $\mx{\phi_{12}} = \left[\begin{array}{rr}-0.33 & 0.11 \\0 & -0.26\end{array}\right]$
+
+and
+
+$\sum_a = \left[\begin{array}{rr}0.0005 & 0.0002\\0.0002 & 0.0006\end{array}\right]$
+
+
+```{r}
+
+VARorder(da4, maxp = 20)
+m4 <- VAR(da4, p = 12)
+m4r <- refVAR(m4, thres = 1.645)
+MTSdiag(m4r)
+```
+
+- The 1-step to 3-step ahead prediction is shown below. The confidence interval is calculated through multiplying standard deviation with t = 1.96.
+
+```{r}
+p4 <- VARpred(m4r, 3)
+
+p4ci <- as_data_frame(p4$pred) %>%
+  bind_cols(as_data_frame(p4$se.err)) %>%
+  mutate(EX_lower = EX-1.96*V1, EX_upper = EX+1.96*V1, IM_lower = IM-1.96*V2, IM_higher = IM+1.96*V2) %>%
+  select(EX_lower, EX_upper, IM_lower, IM_higher)
+
+rownames(p4ci) <- c("1-step", "2-step", "3-step")
+
+kable(p4ci)
+
+```
+
+
