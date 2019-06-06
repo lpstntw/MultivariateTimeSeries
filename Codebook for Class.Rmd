@@ -11,6 +11,8 @@ library(quantmod)
 library(MTS)
 library(tidyverse)
 library(magrittr)
+library(fGarch)
+source("Corner.R")
 
 
 ```
@@ -80,7 +82,7 @@ VARchi(gasfur, p =6)
 # reconfirm the threshold and zero is okay
 
 GrangerTest(gasfur, p = 6, locInput = c(1))
-# the p value here is to see whether to put zero on the first six lag of 1,2 is plausible
+# the p value here is to see whether to put zero on the first six lag of [1,2] element is plausible
 # the null hypo is all lag p of 1,2 equals zero
 # what we want to find is a high p, not to reject the null
 
@@ -89,9 +91,54 @@ GrangerTest(gasfur, p = 6, locInput = c(1))
 ```
 
 
+```{r week 4}
+
+da4 <- read.table("m-dec5n8-6116.txt", skip = 1)
+zt4 <- select(da4, V2, V3)
+MTSplot(zt4)
+VMAorder(zt4, lag = 20) # the Q(m) statistics will tell you which is the right order 
+
+da4_1 <- read.table("flourc.txt")
+Eccm(da4_1) # see the p value, search for the large ones
+
+## Important note in diagnosis, the most important is to have a large p value, for you want the residual to be scattered
+## VARMAirf (impulse response function)
+
+
+# demonstration of unit root problem
+set.seed(1069)
+at_4 <- rnorm(1000)
+acf(at_4)
+Box.test(at_4)
+
+bt_4 <- rnorm(1000)
+y <- cumsum(at_4)
+x <- cumsum(bt_4)
+
+m4_1 <- lm(y~x)
+summary(m4_1) 
+## the two is independent but the p-value is high. It's because of the t-distribution is wrongly selected
+
+```
+
+
+```{r week 7}
+
+da7 <- read.table("m-hsoldhst6312.txt", header = TRUE)
+zt7 <- da7[,c(3,4)]
+
+
+```
+
+```{r week 9}
+
+garchFit
+volatility
+ts.plot
 
 
 
+```
 
 
 

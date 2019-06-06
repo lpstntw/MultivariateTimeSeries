@@ -1,0 +1,185 @@
+---
+title: "Untitled"
+author: "Po-Sheng Lee"
+output: github_document
+---
+
+```{r package}
+
+library(quantmod)
+library(MTS)
+library(tidyverse)
+library(magrittr)
+library(fGarch)
+library(fUnitRoots)
+library(urca)
+library(stargazer)
+source("Corner.R")
+
+```
+
+```{r data import}
+
+getSymbols("CPIAUCNS", src = "FRED") # CPI all items
+getSymbols("CPILFENS", src = "FRED") # CPI less food and energy
+getSymbols("PPIACO", src = "FRED") # PPI all
+getSymbols("XTIMVA01USM664N", src = "FRED") # Import Value Goods for US not adjusted 
+getSymbols("IMPCH", src = "FRED") # Import from China
+getSymbols("IMP5830", src = "FRED") # Import from Taiwan
+getSymbols("IMP5820", src = "FRED") # Import from HK
+getSymbols("IMPJP", src = "FRED") # Import from JP
+getSymbols("IMPKR", src = "FRED") # Import from Korea
+
+da_cpi <- CPIAUCNS %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_cpinofood <- CPILFENS %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_ppi <- PPIACO %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_import <- XTIMVA01USM664N %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_importChina <- IMPCH %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_importTW <- IMP5830 %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_importHK <- IMP5820 %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_importJP <- IMPJP %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_importKR <- IMPKR %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da <- da_cpi %>%
+  left_join(da_cpinofood) %>%
+  left_join(da_ppi) %>%
+  left_join(da_import) %>%
+  left_join(da_importChina) %>%
+  left_join(da_importTW) %>%
+  left_join(da_importHK) %>%
+  left_join(da_importJP) %>%
+  left_join(da_importKR) %>%
+  rename(cpi = CPIAUCNS, cpi_nofood = CPILFENS, ppi = PPIACO, imp_all = XTIMVA01USM664N,
+         imp_china = IMPCH, imp_tw = IMP5830, imp_hk = IMP5820, imp_jp = IMPJP, imp_kr = IMPKR) %>%
+  mutate(imp_all = imp_all/10^6) %>%
+  column_to_rownames()
+
+
+```
+
+```{r trade substitute cointergration ECM}
+
+da_substitue <- da %>%
+  select(imp_china, imp_tw, imp_hk, imp_jp, imp_kr) %>%
+  mutate(imp_china = log10(imp_china), imp_tw = log10(imp_tw), imp_hk = log10(imp_hk), 
+         imp_jp = log10(imp_jp), imp_kr = log10(imp_kr)) %>%
+  drop_na()
+
+#unit root test
+
+VARorder(da_substitue, maxp = 24) #bic select at order = 13 
+
+t1 <- ur.df(da_substitue[,1], lags = 1, type = "drift")
+t2 <- ur.df(da_substitue[,2], lags = 25, type = "drift")
+t3 <- ur.df(da_substitue[,3], lags = 15, type = "drift")
+t4 <- ur.df(da_substitue[,4], lags = 26, type = "drift")
+t5 <- ur.df(da_substitue[,5], lags = 13, type = "drift")
+summary(t1)
+summary(t2)
+summary(t3)
+summary(t4)
+summary(t5)
+
+coint <- ca.jo(da_substitue, ecdet = "const", type = "trace", K = 2, spec = "transitory") 
+# VAR(2) to best describe the co-intergration process
+summary(coint)
+
+wt1 <- da_substitue[,1] + 4.02*da_substitue[,2] + 1.95*da_substitue[,3] - 8.04*da_substitue[,4] - 1.31*da_substitue[,5]
+
+wt2 <- da_substitue[,1] - 25.78*da_substitue[,2] + 8.91*da_substitue[,3] + 7.45*da_substitue[,4] + 8.7*da_substitue[,5]
+
+wt3 <- da_substitue[,1] - 10.61*da_substitue[,2] - 0.41*da_substitue[,3] - 4.39*da_substitue[,4] + 1.7*da_substitue[,5]
+
+wt <- cbind(wt1, wt2, wt3)
+
+adfTest(wt1, lags = 3, type = "c")
+adfTest(wt2, lags = 3, type = "c")
+adfTest(wt3, lags = 3, type = "c")
+
+m1 <- ECMvar1(da_substitue, p = 13, wt)
+m2 <- refECMvar1(m1, thres = 1.2)
+
+MTSdiag(m2)
+
+```
+
+
+```{r trade substitue China Taiwan HK}
+
+da_sub_china <- da %>%
+  select(imp_china, imp_tw, imp_hk) %>%
+  mutate(imp_china = log10(imp_china), imp_tw = log10(imp_tw), imp_hk = log10(imp_hk)) %>%
+  drop_na()
+
+MTSplot(da_sub_china)
+
+VARorder(da_sub_china, maxp = 24) # select VAR(14)
+coint2 <- ca.jo(da_sub_china, ecdet = "const", type = "trace", K = 14, spec = "transitory")
+summary(coint2)
+
+xt <- da_sub_china$imp_china - 9.76*da_sub_china$imp_tw + 2.56*da_sub_china$imp_hk
+
+
+m3 <- ECMvar1(da_sub_china, p = 14, wt = xt)
+m4 <- refECMvar1(m3, thres = 1.2)
+
+MTSdiag(m4)
+```
+
+```{r trade substitute China seasonal}
+# seasonal differencing model
+
+
+m5 <- sVARMA(da_sub_china, order = c(0,1,3), sorder = c(0,1,1), s = 12)
+m6 <- refsVARMA(m5, thres = 1.2)
+
+MTSdiag(m6)
+
+```
+
+```{r trade seasonal east asia}
+
+m7 <- sVARMA(da_substitue, order = c(0,1,3), sorder = c(0,1,1), s = 12)
+m8 <- refsVARMA(m7, thres = 1.2)
+
+```
+
+```{r inflation and trade}
+
+da_inflation <- da %>%
+  select(cpi, imp_all) %>%
+  mutate(imp_all = log10(imp_all)) %>%
+  drop_na()
+
+VARorder(da_inflation, maxp = 24)
+
+
+
+```
+
