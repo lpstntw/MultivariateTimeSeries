@@ -1,0 +1,177 @@
+---
+title: "HW3"
+author: "Po-Sheng Lee"
+date: "2019/5/21"
+output: 
+  pdf_document:
+    keep_tex: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r import package}
+
+library(quantmod)
+library(MTS)
+library(tidyverse)
+library(magrittr)
+library(lubridate)
+source("Corner.R")
+
+```
+
+# Question 1
+
+
+
+- Using the `VMAorder`, at order 2 we cannot reject the null hypothesis of zero correlation matrix. Thus the order should be set at 1.
+
+```{r}
+da <- read.table("gdpsimple6c8018.txt", skip = 1, header = TRUE)
+da1 <- da %>%
+  select(AU, GE, CA)
+da3 <- da %>%
+  select(US, UK, CA)
+VMAorder(da1)
+```
+
+- The estimated model via conditional likelihood is $z_{t} = a_{t} - \left[\begin{array}{rrr}-0.31 & -0.04 & -0.33 \\-0.07 & -0.12 & -0.31 \\-0.25 & -0.15 & -0.47\end{array}\right]a_{t-1}$ where $\sum_{a} = \left[\begin{array}{rrr}0.77 & 0.13 & 0.23 \\0.13 & 0.84 & 0.13 \\ 0.23 & 0.13 & 0.48\end{array}\right]$
+
+The refined model is not reported because the AIC and BIC is lower than the original model.
+
+```{r}
+m1 <- VMA(da1, q = 1, include.mean = FALSE)
+m1r <- refVMA(m1)
+```
+
+- The estimated model via exact likelihood is $z_{t} = a_{t} - \left[\begin{array}{rrr}-0.31 & -0.04 & -0.33 \\-0.07 & -0.12 & -0.32 \\-0.25 & -0.15 & -0.47\end{array}\right]a_{t-1}$ 
+
+where $\sum_{a} = \left[\begin{array}{rrr}0.77 & 0.13 & 0.23 \\0.13 & 0.84 & 0.13 \\ 0.23 & 0.13 & 0.48\end{array}\right]$
+
+The refined model is not reported because the AIC and BIC is about the same as the original model.
+
+- The conditional likelihood and exact likelihood yield similar model estimation. The only difference is the refined model in conditional likelihood method perform very bad.
+
+```{r}
+m1_1 <- VMAe(da1, q = 1, include.mean = FALSE)
+m1_1r <- refVMAe(m1_1)
+
+```
+
+
+# Question 2
+
+- The `VARorder` shows the best order to be selected is order 1 according to every criteria.
+
+```{r}
+VARorder(da1)
+```
+
+- The refined VAR(1) model can be written as $z_{t} = \left[\begin{array}{ccc}0.5 \\ 0.28 \\ 0.1\end{array}\right] + \left[\begin{array}{rrr}0.137 & 0 & 0.29 \\0 & 0.08 & 0.23 \\0.25 & 0.13 & 0.41\end{array}\right]z_{t-1} + a_{t}$ 
+
+where $\sum_{a} = \left[\begin{array}{rrr}0.08 & 0 & 0.08\\0 & 0.081 & 0.1 \\ 0.07 & 0.06 & 0.07\end{array}\right]$
+
+- Based on the AIC and BIC, VAR(1) model seems to perform better than VMA(1) model.
+
+```{r}
+m2 <- VAR(da1, p = 1)
+m2r <- refVAR(m2)
+```
+
+# Question 3 
+
+The VAR(1) model can be written as $z_{t} = \left[\begin{array}{ccc}0.27 \\ 0.21 \\ 0.08\end{array}\right] + \left[\begin{array}{rrr}0.137 & 0 & 0.29 \\0 & 0.08 & 0.23 \\0.25 & 0.13 & 0.41\end{array}\right]z_{t-1} + a_{t}$ 
+
+where $\sum_{a} = \left[\begin{array}{rrr}0.36 & 0.07 & 0.13\\0.07 & 0.33 & 0.02 \\ 0.13 & 0.02 & 0.32\end{array}\right]$
+
+The model checking shows that it is a good model specification.
+
+```{r}
+VARorder(da3)
+m3 <- VAR(da3, p = 1)
+m3r <- refVAR(m3)
+MTSdiag(m3r)
+```
+
+- The impulse response function is shown in the following figures
+
+```{r}
+
+VARirf(Phi = m3r$Phi, Sig = m3r$Sigma)
+
+```
+
+- Using the t-test of MQ, the order should be set at 3. The VMA(3) model can be written as $z_{t} = a_{t} - \left[\begin{array}{ccc}-0.28 & -0.54 & -0.11 \\ -0.16 & -0.4 & 0.28 \\ -0.5 & -0.51 & -0.31\end{array}\right]a_{t-1} - \left[\begin{array}{rrr}-0.096 & -0.29 & 0.16 \\-0.2 & -0.55 & 0.06 \\-0.22 & -0.16 & -0.13\end{array}\right]a_{t-2} - \left[\begin{array}{rrr}-0.216 & -0.02 & -0.2 \\-0.43 & -0.36 & -0.06 \\-0.19 & -0.007 & -0.17\end{array}\right]a_{t-3}$ 
+
+where $\sum_{a} = \left[\begin{array}{rrr}0.87 & 0.37 & 0.59\\0.37 & 0.65 & 0.17 \\ 0.59 & 0.17 & 0.9\end{array}\right]$
+
+-The model checking shows that MA representation is not a good model. The $\Psi$ of impulse response function is equal to the coefficeint of MA model with a negative sign ($-\theta$)
+
+-The most significant difference of impulse response function is that AR representation can estimate a impulse response coefficient with a longer time lag while the MA representation itself is an impulse response function. As a result, impulse response function of MA in this case is not able to account for impulse with longer lag.
+
+```{r}
+
+VMAorder(da3)
+m3_1 <- VMAe(da3, q = 3, include.mean = FALSE)
+
+
+```
+
+# Question 4
+
+- The eigen values can be calculated from the square of deviation. The three largest are 1.34, 0.72 and 0.39. The first component can account for 44% of the variations, and the first three component can account for 80% of all the variations.
+
+- The first component get a taste of every country, the second component is comprised by three non-European countries minus two European countries and the third component is constituted by two North America countries minus other non North America countries.
+
+
+```{r}
+
+da_pca <- princomp(da)
+da_pca$sdev^2
+summary(da_pca)
+da_pca$loadings
+
+```
+
+
+# Question 5 
+
+- The VAR(1) for the growth rate series can be written as 
+
+$z_{t} = \left[\begin{array}{cccccc}0.31\\0.27\\ 0.13\\0.54\\0.12\\0 \end{array}\right] + \left[\begin{array}{rrrrrr}0.15 & 0.43 & -0.20 & 0 & 0 & 0.17 \\0.17 & 0.49 & 0 & -0.13 & 0 & 0 \\0.09 & 0.16 & 0.44 & 0 & -0.05 & 0 \\ 0 & 0.2 & -0.31 & 0.11 & 0 & 0.31\\ 0.24 & 0 & 0.69 & -0.15 & -0.13 & 0 \\ 0.32 & 0.31 & -0.21 & 0.13 & 0.09 & 0.25\end{array}\right]z_{t-1} + a_{t}$ 
+
+
+
+where $\sum_{a} = \left[\begin{array}{rrrrrr}0.35 & 0.066 & 0.046 & 0.12 & 0.089 & 0.13\\0.066 & 0.32 & 0.069 & 0.075 & 0.084 & 0.024 \\ 0.046 & 0.069 & 0.13 & 0.021 & 0.13 & 0.025 \\ 0.12 & 0.075 & 0.021 & 0.44 & -0.017 & 0.015 \\ 0.090 & 0.084 & 0.13 & -0.017 & 0.68 & 0.019 \\ 0.13 & 0.024 & 0.015 & 0.015 & 0.019 & 0.31 \end{array}\right]$
+
+```{r}
+
+da6 <- da_pca$scores
+VARorder(da)
+m6 <- VAR(da, p = 1)
+m6r <- refVAR(m6)
+
+```
+
+- The VAR(1) model for the sixth principal component can be written as 
+
+$z_{t} =\left[\begin{array}{rrrrrr}0.61 & 0.23 & 0.17 & -0.55 & 0 & 0 \\0.085 & 0.18 & 0 & 0 & 0 & -0.90 \\0.096 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0.064 & 0 & 0.29 & 0 & 0\\ -0.078 & 0 & 0 & -0.15 & 0 & 0 \\ 0.043 & 0 & 0 & 0 & -0.074 & 0.27\end{array}\right]z_{t-1} + a_{t}$ 
+
+
+
+where $\sum_{a} = \left[\begin{array}{rrrrrr}0.70 & -0.097 & -0.065 & 0.050 & 0.042 & -0.027\\-0.097 & 0.60 & -0.014 & -0.0076 & 0.0092 & 0.028 \\ -0.065 & -0.014 & 0.38 & -0.078 & 0.014 & -0.0056 \\ 0.050 & -0.076 & -0.0078 & 0.28 & 0.015 & -0.0024 \\ 0.042 & 0.093 & 0.014 & 0.015 & 0.18 & 0.0056 \\ -0.027 & 0.028 & -0.0056 & -0.0024 & 0.0056 & 0.096 \end{array}\right]$
+
+- The model of principal component has more zero in the AR coefficient matrix and has no constant term. This is the result of rotation.
+
+```{r}
+VARorder(da6)
+m6_1 <- VAR(da6, p = 1)
+m6_1r <- refVAR(m6_1)
+
+```
+
+
+
+

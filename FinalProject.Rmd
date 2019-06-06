@@ -1,0 +1,334 @@
+---
+title: "Final Project"
+author: "Po-Sheng Lee"
+output: github_document
+---
+
+```{r package}
+
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, include = FALSE)
+
+library(quantmod)
+library(MTS)
+library(tidyverse)
+library(magrittr)
+library(fGarch)
+library(fUnitRoots)
+library(urca)
+library(stargazer)
+source("Corner.R")
+
+```
+
+```{r data import}
+
+getSymbols("CPIAUCNS", src = "FRED") # CPI all items
+getSymbols("CPILFENS", src = "FRED") # CPI less food and energy
+getSymbols("PPIACO", src = "FRED") # PPI all
+getSymbols("MCOILWTICO", src = "FRED") # crude oil
+getSymbols("XTIMVA01USM664N", src = "FRED") # Import Value Goods for US not adjusted 
+getSymbols("IMPCH", src = "FRED") # Import from China
+getSymbols("IMP5830", src = "FRED") # Import from Taiwan
+getSymbols("IMP5820", src = "FRED") # Import from HK
+getSymbols("IMPJP", src = "FRED") # Import from JP
+getSymbols("IMPKR", src = "FRED") # Import from Korea
+
+da_cpi <- CPIAUCNS %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_cpinofood <- CPILFENS %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_ppi <- PPIACO %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_oil <- MCOILWTICO %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_import <- XTIMVA01USM664N %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_importChina <- IMPCH %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_importTW <- IMP5830 %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_importHK <- IMP5820 %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_importJP <- IMPJP %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da_importKR <- IMPKR %>%
+  as.data.frame() %>%
+  rownames_to_column()
+
+da <- da_cpi %>%
+  left_join(da_cpinofood) %>%
+  left_join(da_ppi) %>%
+  left_join(da_oil) %>%
+  left_join(da_import) %>%
+  left_join(da_importChina) %>%
+  left_join(da_importTW) %>%
+  left_join(da_importHK) %>%
+  left_join(da_importJP) %>%
+  left_join(da_importKR) %>%
+  rename(cpi = CPIAUCNS, cpi_nofood = CPILFENS, ppi = PPIACO, imp_all = XTIMVA01USM664N, oil = MCOILWTICO,
+         imp_china = IMPCH, imp_tw = IMP5830, imp_hk = IMP5820, imp_jp = IMPJP, imp_kr = IMPKR) %>%
+  mutate(imp_all = imp_all/10^6) %>%
+  column_to_rownames()
+
+
+```
+
+```{r trade substitute cointergration ECM}
+
+da_substitue <- da %>%
+  select(imp_china, imp_tw, imp_hk, imp_jp, imp_kr) %>%
+  mutate(imp_china = log10(imp_china), imp_tw = log10(imp_tw), imp_hk = log10(imp_hk), 
+         imp_jp = log10(imp_jp), imp_kr = log10(imp_kr)) %>%
+  drop_na()
+
+#unit root test
+
+VARorder(da_substitue, maxp = 24) #bic select at order = 13 
+
+t1 <- ur.df(da_substitue[,1], lags = 1, type = "drift")
+t2 <- ur.df(da_substitue[,2], lags = 25, type = "drift")
+t3 <- ur.df(da_substitue[,3], lags = 15, type = "drift")
+t4 <- ur.df(da_substitue[,4], lags = 26, type = "drift")
+t5 <- ur.df(da_substitue[,5], lags = 13, type = "drift")
+summary(t1)
+summary(t2)
+summary(t3)
+summary(t4)
+summary(t5)
+
+coint <- ca.jo(da_substitue, ecdet = "const", type = "trace", K = 2, spec = "transitory") 
+# VAR(2) to best describe the co-intergration process
+summary(coint)
+
+wt1 <- da_substitue[,1] + 4.02*da_substitue[,2] + 1.95*da_substitue[,3] - 8.04*da_substitue[,4] - 1.31*da_substitue[,5]
+
+wt2 <- da_substitue[,1] - 25.78*da_substitue[,2] + 8.91*da_substitue[,3] + 7.45*da_substitue[,4] + 8.7*da_substitue[,5]
+
+wt3 <- da_substitue[,1] - 10.61*da_substitue[,2] - 0.41*da_substitue[,3] - 4.39*da_substitue[,4] + 1.7*da_substitue[,5]
+
+wt <- cbind(wt1, wt2, wt3)
+
+adfTest(wt1, lags = 3, type = "c")
+adfTest(wt2, lags = 3, type = "c")
+adfTest(wt3, lags = 3, type = "c")
+
+m1 <- ECMvar1(da_substitue, p = 13, wt)
+m2 <- refECMvar1(m1, thres = 1.2)
+
+```
+
+
+```{r trade substitue China Taiwan HK}
+
+da_sub_china <- da %>%
+  select(imp_china, imp_tw, imp_hk) %>%
+  mutate(imp_china = log10(imp_china), imp_tw = log10(imp_tw), imp_hk = log10(imp_hk)) %>%
+  drop_na()
+
+VARorder(da_sub_china, maxp = 24) # select VAR(14)
+coint2 <- ca.jo(da_sub_china, ecdet = "const", type = "trace", K = 14, spec = "transitory")
+summary(coint2)
+
+xt <- da_sub_china$imp_china - 9.76*da_sub_china$imp_tw + 2.56*da_sub_china$imp_hk
+
+
+m3 <- ECMvar1(da_sub_china, p = 14, wt = xt)
+m4 <- refECMvar1(m3, thres = 1.2)
+
+```
+
+```{r trade substitute China seasonal, cache=TRUE}
+# seasonal differencing model
+
+
+m5 <- sVARMA(da_sub_china, order = c(0,1,3), sorder = c(0,1,1), s = 12)
+m6 <- refsVARMA(m5, thres = 1.2) # compare with m4
+
+
+```
+
+```{r trade seasonal east asia, cache=TRUE}
+
+m7 <- sVARMA(da_substitue, order = c(0,1,3), sorder = c(0,1,1), s = 12)
+m8 <- refsVARMA(m7, thres = 1.2) # compare with m2
+
+```
+
+```{r inflation and trade}
+
+da_inflation <- da %>%
+  select(cpi, imp_all, oil) %>%
+  mutate(imp_all = log10(imp_all)) %>%
+  drop_na()
+
+VARorder(da_inflation, maxp = 24) # order 17
+adfTest(da_inflation$cpi, lags = 1, type = "c")
+adfTest(da_inflation$imp_all, lags = 2, type = "c")
+adfTest(da_inflation$oil, lags = 7, type = "c")
+
+ca.jo(da_inflation, ecdet = "const", type = "trace", K = 17, spec = "transitory") %>%
+  summary()
+
+#cointergration test is only significant at 0.1
+
+yt <- da_inflation$cpi - 252.29*da_inflation$imp_all + 0.39*da_inflation$oil
+
+m9 <- ECMvar1(da_inflation, p = 17, wt = yt) 
+m10 <- refECMvar1(m9, thres = 1.2)
+
+m11 <- VAR(diff(as.matrix(da_inflation)), p = 16) # VAR(17-1) no cointergration only difference model
+m12 <- refVAR(m11, thres = 1.2) # aic bic better in this model
+
+```
+
+```{r inflation trade seasonal, cache = TRUE}
+
+m13 <- sVARMA(da_inflation, order = c(0,1,3), sorder = c(0,1,1), s = 12)
+m14 <- refsVARMA(m13, thres = 1.2) # compare with m12
+
+```
+
+
+```{r inflation trade china}
+
+da_inflation_china <- da %>%
+  select(cpi, imp_china, oil) %>%
+  mutate(imp_china = log10(imp_china)) %>%
+  drop_na()
+
+VARorder(da_inflation_china, maxp = 24) # order 14
+
+ca.jo(da_inflation_china, ecdet = "const", type = "trace", K = 14, spec = "transitory") %>%
+  summary() # second rank of cointergration is borderline case
+
+at1 <- da_inflation_china$cpi + 274.2*da_inflation_china$imp_china - 0.49*da_inflation_china$oil
+at2 <- da_inflation_china$cpi - 34.03*da_inflation_china$imp_china + 0.41*da_inflation_china$oil
+
+at <- cbind(at1, at2)
+
+m15 <- ECMvar1(da_inflation_china, p = 14, wt = at) 
+m16 <- refECMvar1(m15, thres = 1.2) # this is better 
+
+m17 <- ECMvar1(da_inflation_china, p = 14, wt = at1) 
+m18 <- refECMvar1(m17, thres = 1.2) 
+
+m21 <- VAR(diff(as.matrix(da_inflation_china)), p = 13)
+m22 <- refVAR(m21, thres = 1.2)
+
+```
+
+```{r seasonal inflation trade china, cache = TRUE}
+m19 <- sVARMA(da_inflation_china, order = c(0,1,3), sorder = c(0,1,1), s = 12)
+m20 <- refsVARMA(m19, thres = 1.2) # cf m18
+
+```
+
+
+```{r cpi ppi trade and oil as exogenous}
+da_ppi_cpi <- da %>%
+  select(cpi, ppi, imp_all, imp_china, oil) %>%
+  mutate(imp_china = log10(imp_china), imp_all = log10(imp_all)) %>%
+  drop_na() %>%
+  select(cpi, ppi) 
+
+da_trade_oil <- da %>%
+  select(cpi, ppi, imp_all, imp_china, oil) %>%
+  mutate(imp_china = log10(imp_china), imp_all = log10(imp_all)) %>%
+  drop_na() %>%
+  select(imp_all, imp_china, oil) 
+  
+
+VARXorder(x = da_ppi_cpi, exog = da_trade_oil, maxp = 12, maxm = 3)
+
+m23 <- VARX(zt = da_ppi_cpi, p = 2, xt = da_trade_oil, m = 3)
+m24 <- refVARX(m23, thres = 1.2)
+
+
+
+```
+
+
+# Time Series analysis of trade from East Asia and inflation 
+
+Below is the plot and model of US's import from China, Taiwan HK, JP and Kr. We take the log transformation of the import value. Error Correction model with cointergration series as wess as Seasonal Model are reported here. Seasonal Model with order (0,1,3) , sorder(0, 1, 1) and s = 12 is preferred, for its lower aic and bic.
+
+```{r report asia trade, include= TRUE, cache=TRUE}
+
+MTSplot(da_substitue)
+
+summary(coint)
+
+m2 <- refECMvar1(m1, thres = 1.2)
+m8 <- refsVARMA(m7, thres = 1.2)
+
+```
+
+A reduced model with only China, TW and HK is reported here. Again, ECM with cointergration and seasonal model are reported. Seasonal model is preferred
+
+```{r report china tw hk trade, include=TRUE, cache=TRUE}
+
+summary(coint2)
+
+m4 <- refECMvar1(m3, thres = 1.2)
+m6 <- refsVARMA(m5, thres = 1.2)
+
+```
+
+CPI, import and oil price is modelled through ECM with cointergration, VEC and seasonal model. VEC is preferred.
+
+```{r report cpi import oil, include=TRUE, cache=TRUE}
+
+MTSplot(da_inflation)
+
+ca.jo(da_inflation, ecdet = "const", type = "trace", K = 17, spec = "transitory") %>%
+  summary()
+
+m10 <- refECMvar1(m9, thres = 1.2)
+m12 <- refVAR(m11, thres = 1.2) # no cointergration the test is on borderline
+m14 <- refsVARMA(m13, thres = 1.2)
+
+```
+
+CPI, import from china and oil price is modeled. Seasonal and VEC has mixed result.
+
+```{r report cpi import china oil, include=TRUE, cache=TRUE}
+
+ca.jo(da_inflation_china, ecdet = "const", type = "trace", K = 14, spec = "transitory") %>%
+  summary()
+
+m16 <- refECMvar1(m15, thres = 1.2)
+m22 <- refVAR(m21, thres = 1.2)
+m20 <- refsVARMA(m19, thres = 1.2)
+
+```
+
+Use trade and oil as exogenous shock to model the cpi and ppi.
+
+```{r report exogenous shock, include=TRUE, cache=TRUE}
+
+MTSplot(da_ppi_cpi)
+MTSplot(da_trade_oil)
+
+m24 <- refVARX(m23, thres = 1.2)
+
+```
+
+

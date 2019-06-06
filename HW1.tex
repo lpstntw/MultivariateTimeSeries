@@ -1,0 +1,904 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={HW1},
+            pdfauthor={Po-Sheng Lee},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{HW1}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Po-Sheng Lee}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2019/4/14}
+
+
+\begin{document}
+\maketitle
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(quantmod)}
+\KeywordTok{library}\NormalTok{(MTS)}
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\KeywordTok{library}\NormalTok{(magrittr)}
+\KeywordTok{library}\NormalTok{(lubridate)}
+\KeywordTok{source}\NormalTok{(}\StringTok{"Corner.R"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\section{Question 2}\label{question-2}
+
+First, specify an ARMA model for Xt using function \texttt{arima},
+specifying order at (3, 0, 0), which means three lags are included and
+no deadtime. Then, use \texttt{tsdiag} to diagnose the model fit.
+Ljung-Box statistics seems quite good in this model.
+
+In another model not reported here, I build an ARMA model at the order
+of (2, 0, 0) and the Ljung-Box seems fairly good enough. However, given
+the function \texttt{tsdiag} do not use the right degree of freedom, the
+p-value of Ljung-Box is inflated. After taking this into account, it is
+more appropriate to build an ARMA model of xt at the order of (3, 0, 0).
+
+The results are shown as follows.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{hw1 <-}\StringTok{ }\KeywordTok{read.table}\NormalTok{(}\StringTok{"hw1-2.txt"}\NormalTok{, }\DataTypeTok{skip =} \DecValTok{1}\NormalTok{, }\DataTypeTok{col.names =} \KeywordTok{c}\NormalTok{(}\StringTok{"yt"}\NormalTok{, }\StringTok{"xt"}\NormalTok{))}
+
+\NormalTok{m1 <-}\StringTok{ }\KeywordTok{arima}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ hw1}\OperatorTok{$}\NormalTok{xt, }\DataTypeTok{order =} \KeywordTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{), }\DataTypeTok{include.mean =} \OtherTok{FALSE}\NormalTok{)}
+
+\KeywordTok{tsdiag}\NormalTok{(m1, }\DataTypeTok{gof.lag =} \DecValTok{20}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 2-1-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m1}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## arima(x = hw1$xt, order = c(3, 0, 0), include.mean = FALSE)
+## 
+## Coefficients:
+##           ar1     ar2      ar3
+##       -0.2454  0.1512  -0.0798
+## s.e.   0.0446  0.0454   0.0446
+## 
+## sigma^2 estimated as 1.023:  log likelihood = -715.19,  aic = 1438.39
+\end{verbatim}
+
+For the transfer function, we use the pre-whitening method to obtain a
+preliminary estimation of impulse response function. Then, apply Corner
+method to obtain the best guess of (r,s,b) of transfer function. It is
+shown as follows and the vector of (r,s,b) derived from Corner method is
+(1,1,1)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{xf <-}\StringTok{ }\NormalTok{m1}\OperatorTok{$}\NormalTok{residuals}
+\NormalTok{f1 <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\OperatorTok{-}\NormalTok{m1}\OperatorTok{$}\NormalTok{coef)}
+\NormalTok{yf <-}\StringTok{ }\NormalTok{stats}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(hw1}\OperatorTok{$}\NormalTok{yt, f1, }\DataTypeTok{method =} \StringTok{"convolution"}\NormalTok{, }\DataTypeTok{sides =} \DecValTok{1}\NormalTok{)}
+\NormalTok{zt <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(xf[}\DecValTok{4}\OperatorTok{:}\DecValTok{500}\NormalTok{], yf[}\DecValTok{4}\OperatorTok{:}\DecValTok{500}\NormalTok{])}
+\KeywordTok{colnames}\NormalTok{(zt) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"xf"}\NormalTok{, }\StringTok{"yf"}\NormalTok{)}
+\KeywordTok{MTSplot}\NormalTok{(zt)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 2-2-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ccm}\NormalTok{(zt)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Covariance matrix:"
+##       xf     yf
+## xf 1.028  0.274
+## yf 0.274 73.230
+## CCM at lag:  0 
+##        [,1]   [,2]
+## [1,] 1.0000 0.0315
+## [2,] 0.0315 1.0000
+## Simplified matrix: 
+## CCM at lag:  1 
+## . . 
+## + + 
+## CCM at lag:  2 
+## . . 
+## + + 
+## CCM at lag:  3 
+## . . 
+## + + 
+## CCM at lag:  4 
+## . . 
+## + + 
+## CCM at lag:  5 
+## . . 
+## + + 
+## CCM at lag:  6 
+## . . 
+## + + 
+## CCM at lag:  7 
+## . . 
+## + + 
+## CCM at lag:  8 
+## . . 
+## + + 
+## CCM at lag:  9 
+## . . 
+## + + 
+## CCM at lag:  10 
+## . . 
+## + + 
+## CCM at lag:  11 
+## . . 
+## + + 
+## CCM at lag:  12 
+## . . 
+## . .
+\end{verbatim}
+
+\includegraphics{HW1_files/figure-latex/question 2-2-2.pdf}
+
+\begin{verbatim}
+## Hit Enter for p-value plot of individual ccm:
+\end{verbatim}
+
+\includegraphics{HW1_files/figure-latex/question 2-2-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{Corner}\NormalTok{(zt[,}\DecValTok{2}\NormalTok{], zt[,}\DecValTok{1}\NormalTok{])}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Corner Table:  
+##       r->     1      2     3      4     5     6     7
+##  [1,]   0 0.033  0.001 0.000  0.000 0.000 0.000 0.000
+##  [2,]   1 0.692  0.445 0.308  0.213 0.147 0.102 0.070
+##  [3,]   2 1.000  0.441 0.429  0.429 0.429 0.429 0.429
+##  [4,]   3 0.808 -0.001 0.027  0.021 0.017 0.014 0.011
+##  [5,]   4 0.653 -0.024 0.030  0.003 0.002 0.001 0.001
+##  [6,]   5 0.558  0.034 0.014  0.001 0.001 0.001 0.000
+##  [7,]   6 0.424 -0.016 0.009 -0.003 0.002 0.000 0.000
+##  [8,]   7 0.351 -0.007 0.003 -0.001 0.000 0.000 0.000
+##  [9,]   8 0.306 -0.007 0.001  0.000 0.000 0.000 0.000
+## [10,]   9 0.288 -0.010 0.000  0.000 0.000 0.000 0.000
+## [11,]  10 0.304  0.028 0.005  0.001 0.000 0.000 0.000
+## 
+## Simplified Table: 2/sqrt(T):  
+##       r->  1   2   3   4   5   6   7  
+##  [1,] "0"  "O" "O" "O" "O" "O" "O" "O"
+##  [2,] "1"  "X" "X" "X" "X" "X" "X" "O"
+##  [3,] "2"  "X" "X" "X" "X" "X" "X" "X"
+##  [4,] "3"  "X" "O" "O" "O" "O" "O" "O"
+##  [5,] "4"  "X" "O" "O" "O" "O" "O" "O"
+##  [6,] "5"  "X" "O" "O" "O" "O" "O" "O"
+##  [7,] "6"  "X" "O" "O" "O" "O" "O" "O"
+##  [8,] "7"  "X" "O" "O" "O" "O" "O" "O"
+##  [9,] "8"  "X" "O" "O" "O" "O" "O" "O"
+## [10,] "9"  "X" "O" "O" "O" "O" "O" "O"
+## [11,] "10" "X" "O" "O" "O" "O" "O" "O"
+\end{verbatim}
+
+Then, use the \texttt{tfm} function to determine the proper ARMA model
+for Nt. The partial autocorrelation of Nt shows that the proper lag
+should be 4. This is corrobrated by autocorrelation of residual. The
+final model will be
+\(Y_{t} = 5.03 + \frac{3+2.02B}{1-0.8B}BX_{t} + \frac{a_{t}}{1-0.19B-0.52B^2+0.03B^3-0.002B^4}\)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m2 <-}\StringTok{ }\KeywordTok{tfm}\NormalTok{(hw1}\OperatorTok{$}\NormalTok{yt, hw1}\OperatorTok{$}\NormalTok{xt, }\DataTypeTok{b =} \DecValTok{1}\NormalTok{, }\DataTypeTok{s =} \DecValTok{1}\NormalTok{, }\DataTypeTok{p =} \DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## ARMA coefficients & s.e.: 
+##              ar1
+## coef.arma 0.9112
+## se.arma   0.0181
+## Transfer function coefficients & s.e.: 
+##      intercept      X       
+## v         4.47 2.0262 1.8328
+## se.v      1.23 0.0949 0.0951
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{pacf}\NormalTok{(m2}\OperatorTok{$}\NormalTok{nt)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 2-3-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m2_}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{tfm}\NormalTok{(hw1}\OperatorTok{$}\NormalTok{yt, hw1}\OperatorTok{$}\NormalTok{xt, }\DataTypeTok{b =} \DecValTok{1}\NormalTok{, }\DataTypeTok{s =} \DecValTok{1}\NormalTok{, }\DataTypeTok{p =} \DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## ARMA coefficients & s.e.: 
+##             ar1   ar2    ar3    ar4
+## coef.arma 1.109 0.174 -0.729 0.3546
+## se.arma   0.044 0.065  0.061 0.0421
+## Transfer function coefficients & s.e.: 
+##      intercept      X      
+## v         4.47 1.7038 1.875
+## se.v      1.05 0.0689 0.069
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{acf}\NormalTok{(m2_}\DecValTok{1}\OperatorTok{$}\NormalTok{residuals)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 2-3-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m2_}\DecValTok{2}\NormalTok{ <-}\StringTok{ }\KeywordTok{tfm1}\NormalTok{(hw1}\OperatorTok{$}\NormalTok{yt, hw1}\OperatorTok{$}\NormalTok{xt, }\DataTypeTok{orderN =} \KeywordTok{c}\NormalTok{(}\DecValTok{4}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{), }\DataTypeTok{orderX =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Delay:  1 
+## Transfer function coefficients & s.e.: 
+## in the order: constant, omega, and delta: 1 2 1 
+##       [,1]   [,2]   [,3]    [,4]
+## v    5.033 3.0087 2.0170 0.80157
+## se.v 0.131 0.0415 0.0463 0.00411
+## ARMA order: 
+## [1] 4 0 0
+## ARMA coefficients & s.e.: 
+##             [,1]   [,2]    [,3]    [,4]
+## coef.arma 0.1857 0.5225 -0.0323 0.00162
+## se.arma   0.0449 0.0459  0.0458 0.04525
+\end{verbatim}
+
+\section{Question 3}\label{question-3}
+
+Import the data from FRED using \texttt{quantmod}. The unemployment is
+under the tag \emph{UNRATE} and initial claim is under \emph{ICSA}. Data
+preparation is as follows
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{getSymbols}\NormalTok{(}\StringTok{"UNRATE"}\NormalTok{, }\DataTypeTok{src =} \StringTok{"FRED"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "UNRATE"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{chartSeries}\NormalTok{(UNRATE)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 3 data preperation-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{getSymbols}\NormalTok{(}\StringTok{"ICSA"}\NormalTok{, }\DataTypeTok{src =} \StringTok{"FRED"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "ICSA"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{chartSeries}\NormalTok{(ICSA)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 3 data preperation-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{## The accessed data is not structured as a data frame, tidy it for further analysis }
+  
+\NormalTok{ICSA <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(}\KeywordTok{index}\NormalTok{(ICSA), }\KeywordTok{as_data_frame}\NormalTok{(ICSA))}
+\KeywordTok{colnames}\NormalTok{(ICSA) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"date"}\NormalTok{, }\StringTok{"claims"}\NormalTok{)}
+\NormalTok{ICSA }\OperatorTok{%<>%}
+\StringTok{  }\KeywordTok{separate}\NormalTok{(date, }\DataTypeTok{into =} \KeywordTok{c}\NormalTok{(}\StringTok{"year"}\NormalTok{, }\StringTok{"mon"}\NormalTok{, }\StringTok{"day"}\NormalTok{), }\DataTypeTok{sep =} \StringTok{"-"}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{group_by}\NormalTok{(year, mon) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{summarize}\NormalTok{(}\DataTypeTok{claims =} \KeywordTok{mean}\NormalTok{(claims)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{ungroup}\NormalTok{()}
+
+\NormalTok{UNRATE <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(}\KeywordTok{index}\NormalTok{(UNRATE), }\KeywordTok{as_data_frame}\NormalTok{(UNRATE))}
+\KeywordTok{colnames}\NormalTok{(UNRATE) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"date"}\NormalTok{, }\StringTok{"unrate"}\NormalTok{)}
+\NormalTok{UNRATE }\OperatorTok{%<>%}
+\StringTok{  }\KeywordTok{separate}\NormalTok{(date, }\DataTypeTok{into =} \KeywordTok{c}\NormalTok{(}\StringTok{"year"}\NormalTok{, }\StringTok{"mon"}\NormalTok{, }\StringTok{"day"}\NormalTok{), }\DataTypeTok{sep =} \StringTok{"-"}\NormalTok{)}
+
+\NormalTok{unrate_claim_ts <-}\StringTok{ }\NormalTok{ICSA }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(UNRATE, }\DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{"year"}\NormalTok{, }\StringTok{"mon"}\NormalTok{)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(claims, unrate) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{drop_na}\NormalTok{()}
+
+\KeywordTok{MTSplot}\NormalTok{(unrate_claim_ts)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 3 data preperation-3.pdf}
+
+Then, employ the \texttt{VARorder} to determine the AR order. Based on
+the AIC, the proper order for claims should be 7 and 13 for the
+unemployment rate. Then use the arima to estimate and refine the model.
+The scalar model can be written as follows
+
+For claims: \$x\_\{t\}=
+1.1x\_\{t-1\}-0.085x\_\{t-2\}-0.076x\_\{t-5\}+0.15x+\{t-6\}-0.12x+\{t-7\}+343287
+\$ For unemployment rate:
+\(y_{t} = 1.04y_{t-1}+0.1y_{t-2}-0.072y_{t-5}+0.069y_{t-11}-0.19y_{t-12}+0.11y_{t-13} +5.92\)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{## Use VARorder to determine the AR model}
+\KeywordTok{VARorder}\NormalTok{(unrate_claim_ts}\OperatorTok{$}\NormalTok{claims, }\DataTypeTok{maxp =} \DecValTok{20}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## selected order: aic =  7 
+## selected order: bic =  2 
+## selected order: hq =  2 
+## Summary table:  
+##        p     AIC     BIC      HQ      M(p) p-value
+##  [1,]  0 22.6926 22.6926 22.6926    0.0000  0.0000
+##  [2,]  1 19.6411 19.6482 19.6439 1846.5659  0.0000
+##  [3,]  2 19.6279 19.6421 19.6334    9.9008  0.0017
+##  [4,]  3 19.6261 19.6474 19.6344    2.9938  0.0836
+##  [5,]  4 19.6287 19.6570 19.6397    0.3808  0.5372
+##  [6,]  5 19.6282 19.6636 19.6420    2.1819  0.1396
+##  [7,]  6 19.6311 19.6736 19.6476    0.1948  0.6590
+##  [8,]  7 19.6205 19.6701 19.6398    8.2521  0.0041
+##  [9,]  8 19.6215 19.6781 19.6435    1.3239  0.2499
+## [10,]  9 19.6247 19.6884 19.6494    0.0009  0.9763
+## [11,] 10 19.6277 19.6986 19.6552    0.0674  0.7952
+## [12,] 11 19.6306 19.7085 19.6609    0.1763  0.6746
+## [13,] 12 19.6334 19.7184 19.6664    0.2434  0.6217
+## [14,] 13 19.6363 19.7284 19.6721    0.1445  0.7038
+## [15,] 14 19.6395 19.7386 19.6780    0.0338  0.8542
+## [16,] 15 19.6426 19.7489 19.6839    0.0193  0.8895
+## [17,] 16 19.6388 19.7521 19.6828    4.1645  0.0413
+## [18,] 17 19.6349 19.7553 19.6817    4.1664  0.0412
+## [19,] 18 19.6374 19.7649 19.6870    0.3596  0.5487
+## [20,] 19 19.6403 19.7749 19.6926    0.1781  0.6730
+## [21,] 20 19.6423 19.7839 19.6973    0.7365  0.3908
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{VARorder}\NormalTok{(unrate_claim_ts}\OperatorTok{$}\NormalTok{unrate, }\DataTypeTok{maxp =} \DecValTok{20}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## selected order: aic =  13 
+## selected order: bic =  5 
+## selected order: hq =  7 
+## Summary table:  
+##        p     AIC     BIC      HQ      M(p) p-value
+##  [1,]  0  0.9568  0.9568  0.9568    0.0000  0.0000
+##  [2,]  1 -3.4797 -3.4727 -3.4770 2683.8064  0.0000
+##  [3,]  2 -3.5098 -3.4957 -3.5043   20.0884  0.0000
+##  [4,]  3 -3.5691 -3.5478 -3.5608   37.6132  0.0000
+##  [5,]  4 -3.6057 -3.5773 -3.5946   23.9141  0.0000
+##  [6,]  5 -3.6307 -3.5953 -3.6170   16.9730  0.0000
+##  [7,]  6 -3.6362 -3.5937 -3.6197    5.1963  0.0226
+##  [8,]  7 -3.6399 -3.5903 -3.6206    4.1235  0.0423
+##  [9,]  8 -3.6367 -3.5801 -3.6147    0.0001  0.9913
+## [10,]  9 -3.6335 -3.5698 -3.6088    0.0101  0.9200
+## [11,] 10 -3.6304 -3.5596 -3.6029    0.0349  0.8518
+## [12,] 11 -3.6272 -3.5493 -3.5970    0.0156  0.9008
+## [13,] 12 -3.6298 -3.5448 -3.5968    3.4309  0.0640
+## [14,] 13 -3.6404 -3.5483 -3.6046    8.1189  0.0044
+## [15,] 14 -3.6373 -3.5382 -3.5988    0.0897  0.7646
+## [16,] 15 -3.6363 -3.5301 -3.5951    1.3100  0.2524
+## [17,] 16 -3.6343 -3.5209 -3.5902    0.6609  0.4162
+## [18,] 17 -3.6359 -3.5155 -3.5891    2.8181  0.0932
+## [19,] 18 -3.6332 -3.5057 -3.5836    0.2849  0.5935
+## [20,] 19 -3.6306 -3.4960 -3.5783    0.3544  0.5516
+## [21,] 20 -3.6310 -3.4894 -3.5760    2.1172  0.1457
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m3 <-}\StringTok{ }\KeywordTok{arima}\NormalTok{(unrate_claim_ts}\OperatorTok{$}\NormalTok{claims, }\DataTypeTok{order =} \KeywordTok{c}\NormalTok{(}\DecValTok{7}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{))}
+\NormalTok{m3}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## arima(x = unrate_claim_ts$claims, order = c(7, 0, 0))
+## 
+## Coefficients:
+##          ar1      ar2      ar3     ar4      ar5     ar6      ar7
+##       1.0983  -0.0728  -0.0350  0.0352  -0.0888  0.1486  -0.1151
+## s.e.  0.0397   0.0589   0.0588  0.0588   0.0589  0.0589   0.0398
+##       intercept
+##       343268.28
+## s.e.   23456.32
+## 
+## sigma^2 estimated as 320675904:  log likelihood = -7031.54,  aic = 14081.08
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m3_r <-}\StringTok{ }\KeywordTok{arima}\NormalTok{(unrate_claim_ts}\OperatorTok{$}\NormalTok{claims, }\DataTypeTok{order =} \KeywordTok{c}\NormalTok{(}\DecValTok{7}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{), }\DataTypeTok{fixed =} \KeywordTok{c}\NormalTok{(}\OtherTok{NA}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\OtherTok{NA}\NormalTok{))}
+\NormalTok{m3_r}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## arima(x = unrate_claim_ts$claims, order = c(7, 0, 0), fixed = c(NA, NA, 0, 0, 
+##     NA, NA, NA, NA))
+## 
+## Coefficients:
+##          ar1      ar2  ar3  ar4      ar5     ar6      ar7  intercept
+##       1.0982  -0.0848    0    0  -0.0762  0.1487  -0.1157  343287.93
+## s.e.  0.0396   0.0464    0    0   0.0465  0.0588   0.0398   23506.47
+## 
+## sigma^2 estimated as 320916496:  log likelihood = -7031.77,  aic = 14077.54
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{tsdiag}\NormalTok{(m3_r, }\DataTypeTok{gof.lag =} \DecValTok{24}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 3-1-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m3_}\DecValTok{1}\NormalTok{ <-}\StringTok{ }\KeywordTok{arima}\NormalTok{(unrate_claim_ts}\OperatorTok{$}\NormalTok{unrate, }\DataTypeTok{order =} \KeywordTok{c}\NormalTok{(}\DecValTok{13}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{))}
+\NormalTok{m3_}\DecValTok{1}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## arima(x = unrate_claim_ts$unrate, order = c(13, 0, 0))
+## 
+## Coefficients:
+##          ar1     ar2     ar3     ar4      ar5      ar6      ar7    ar8
+##       1.0360  0.0967  0.0048  0.0083  -0.0765  -0.0068  -0.0795  0.019
+## s.e.  0.0396  0.0568  0.0569  0.0569   0.0569   0.0571   0.0570  0.057
+##          ar9     ar10    ar11     ar12    ar13  intercept
+##       0.0009  -0.0118  0.0726  -0.1915  0.1154     5.9169
+## s.e.  0.0569   0.0570  0.0571   0.0569  0.0398     0.4907
+## 
+## sigma^2 estimated as 0.0249:  log likelihood = 265.35,  aic = -500.7
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m3_1_r <-}\StringTok{ }\KeywordTok{arima}\NormalTok{(unrate_claim_ts}\OperatorTok{$}\NormalTok{unrate, }\DataTypeTok{order =} \KeywordTok{c}\NormalTok{(}\DecValTok{13}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{), }\DataTypeTok{fixed =} \KeywordTok{c}\NormalTok{(}\OtherTok{NA}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\DecValTok{0}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\OtherTok{NA}\NormalTok{, }\OtherTok{NA}\NormalTok{))}
+\NormalTok{m3_1_r}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## arima(x = unrate_claim_ts$unrate, order = c(13, 0, 0), fixed = c(NA, NA, 0, 
+##     0, NA, 0, NA, 0, 0, 0, NA, NA, NA, NA))
+## 
+## Coefficients:
+##          ar1     ar2  ar3  ar4      ar5  ar6      ar7  ar8  ar9  ar10
+##       1.0359  0.1023    0    0  -0.0719    0  -0.0715    0    0     0
+## s.e.  0.0393  0.0483    0    0   0.0401    0   0.0383    0    0     0
+##         ar11     ar12    ar13  intercept
+##       0.0691  -0.1911  0.1147     5.9178
+## s.e.  0.0473   0.0567  0.0397     0.4915
+## 
+## sigma^2 estimated as 0.02491:  log likelihood = 265.24,  aic = -512.48
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{tsdiag}\NormalTok{(m3_1_r, }\DataTypeTok{gof.lag =} \DecValTok{24}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 3-1-2.pdf}
+
+The Granger Causality can be tested by \texttt{GrangerTest} in
+\texttt{MTS}. Using AR(13) model, we find that both direction has a high
+p-value, thus resulting in no unidirectional causality.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{VARorder}\NormalTok{(unrate_claim_ts)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## selected order: aic =  12 
+## selected order: bic =  2 
+## selected order: hq =  7 
+## Summary table:  
+##        p     AIC     BIC      HQ      M(p) p-value
+##  [1,]  0 22.7177 22.7177 22.7177    0.0000  0.0000
+##  [2,]  1 15.8184 15.8467 15.8294 4219.8218  0.0000
+##  [3,]  2 15.7622 15.8188 15.7842   41.9452  0.0000
+##  [4,]  3 15.7371 15.8220 15.7701   22.9820  0.0001
+##  [5,]  4 15.7244 15.8377 15.7684   15.3690  0.0040
+##  [6,]  5 15.7113 15.8530 15.7664   15.5447  0.0037
+##  [7,]  6 15.6881 15.8581 15.7542   21.6093  0.0002
+##  [8,]  7 15.6611 15.8594 15.7382   23.7942  0.0001
+##  [9,]  8 15.6641 15.8908 15.7522    5.8081  0.2139
+## [10,]  9 15.6564 15.9114 15.7555   12.1670  0.0162
+## [11,] 10 15.6562 15.9395 15.7663    7.6837  0.1039
+## [12,] 11 15.6654 15.9771 15.7865    2.1015  0.7171
+## [13,] 12 15.6431 15.9830 15.7751   20.6727  0.0004
+## [14,] 13 15.6477 16.0160 15.7908    4.7382  0.3152
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{GrangerTest}\NormalTok{(unrate_claim_ts, }\DataTypeTok{p =} \DecValTok{12}\NormalTok{, }\DataTypeTok{locInput =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Number of targeted zero parameters:  12 
+## Chi-square test for Granger Causality and p-value:  30.64864 0.002228052
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{GrangerTest}\NormalTok{(unrate_claim_ts, }\DataTypeTok{p =} \DecValTok{12}\NormalTok{, }\DataTypeTok{locInput =} \KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Number of targeted zero parameters:  12 
+## Chi-square test for Granger Causality and p-value:  173.8459 0
+\end{verbatim}
+
+\section{Question 4}\label{question-4}
+
+Get the time series data with \texttt{quantmod}. The price report time
+of crude oil is three days ahead (or four days lag) of the regular gas.
+I take the crude oil price as being ahead of the regular oil; therefore
+I add three days to the pricing day of crude oil.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{getSymbols}\NormalTok{(}\StringTok{"WCOILWTICO"}\NormalTok{, }\DataTypeTok{src =} \StringTok{"FRED"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "WCOILWTICO"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{chartSeries}\NormalTok{(WCOILWTICO)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 4 data preparation-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{getSymbols}\NormalTok{(}\StringTok{"GASREGCOVW"}\NormalTok{, }\DataTypeTok{src =} \StringTok{"FRED"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "GASREGCOVW"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{chartSeries}\NormalTok{(GASREGCOVW)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 4 data preparation-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{crude_oil <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(}\KeywordTok{index}\NormalTok{(WCOILWTICO), }\KeywordTok{as_data_frame}\NormalTok{(WCOILWTICO))}
+\KeywordTok{colnames}\NormalTok{(crude_oil) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"date"}\NormalTok{, }\StringTok{"crude"}\NormalTok{)}
+\NormalTok{crude_oil }\OperatorTok{%<>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{date =}\NormalTok{ date }\OperatorTok{+}\StringTok{ }\DecValTok{3}\NormalTok{)}
+
+\NormalTok{reg_gas <-}\StringTok{ }\KeywordTok{cbind}\NormalTok{(}\KeywordTok{index}\NormalTok{(GASREGCOVW), }\KeywordTok{as_data_frame}\NormalTok{(GASREGCOVW))}
+\KeywordTok{colnames}\NormalTok{(reg_gas) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"date"}\NormalTok{, }\StringTok{"reg"}\NormalTok{)}
+
+\NormalTok{i <-}\StringTok{ }\KeywordTok{ymd}\NormalTok{(}\StringTok{"1996-01-01"}\NormalTok{) }\OperatorTok{%--%}\StringTok{ }\KeywordTok{ymd}\NormalTok{(}\StringTok{"2018-12-31"}\NormalTok{)}
+
+\NormalTok{oil_ts <-}\StringTok{ }\NormalTok{crude_oil }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(reg_gas) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{drop_na}\NormalTok{() }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{date =} \KeywordTok{as_date}\NormalTok{(date)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{filter}\NormalTok{(date }\OperatorTok{%within%}\StringTok{ }\NormalTok{i) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{crude =} \KeywordTok{log10}\NormalTok{(crude), }\DataTypeTok{reg =} \KeywordTok{log10}\NormalTok{(reg)) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(crude, reg)}
+
+\KeywordTok{MTSplot}\NormalTok{(oil_ts)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/question 4 data preparation-3.pdf}
+
+Use \texttt{VARorder} and \texttt{GrangerTest} to see whether there is
+Granger Caulsality among these tow variables. Use AR(9) to test the
+Granger Causality. No unidirectional causality is detected.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{VARorder}\NormalTok{(oil_ts)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## selected order: aic =  9 
+## selected order: bic =  3 
+## selected order: hq =  3 
+## Summary table:  
+##        p      AIC      BIC       HQ      M(p) p-value
+##  [1,]  0  -9.5203  -9.5203  -9.5203    0.0000  0.0000
+##  [2,]  1 -17.6585 -17.6416 -17.6521 9647.6059  0.0000
+##  [3,]  2 -18.0279 -17.9940 -18.0151  444.7043  0.0000
+##  [4,]  3 -18.0520 -18.0012 -18.0329   36.3242  0.0000
+##  [5,]  4 -18.0566 -17.9888 -18.0310   13.2245  0.0102
+##  [6,]  5 -18.0554 -17.9706 -18.0235    6.4191  0.1700
+##  [7,]  6 -18.0567 -17.9550 -18.0184    9.3773  0.0523
+##  [8,]  7 -18.0547 -17.9360 -18.0100    5.4922  0.2404
+##  [9,]  8 -18.0502 -17.9146 -17.9991    2.5126  0.6424
+## [10,]  9 -18.0599 -17.9073 -18.0024   19.0610  0.0008
+## [11,] 10 -18.0598 -17.8903 -17.9959    7.6971  0.1033
+## [12,] 11 -18.0538 -17.8673 -17.9836    0.7786  0.9413
+## [13,] 12 -18.0552 -17.8517 -17.9786    9.3568  0.0528
+## [14,] 13 -18.0491 -17.8287 -17.9661    0.6507  0.9573
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{GrangerTest}\NormalTok{(oil_ts, }\DataTypeTok{p =} \DecValTok{9}\NormalTok{, }\DataTypeTok{locInput =} \KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Number of targeted zero parameters:  9 
+## Chi-square test for Granger Causality and p-value:  37.90163 1.815407e-05
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{GrangerTest}\NormalTok{(oil_ts, }\DataTypeTok{p =} \DecValTok{9}\NormalTok{, }\DataTypeTok{locInput =} \KeywordTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Number of targeted zero parameters:  9 
+## Chi-square test for Granger Causality and p-value:  60.44978 1.098027e-09
+\end{verbatim}
+
+\section{Question 5}\label{question-5}
+
+The plot and ccm is shown below. Multivariate Ljung-Box statistic
+rejects the null hypothesis that \(\rho_{i}=0\)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{c <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{c}\NormalTok{(.}\DecValTok{9}\NormalTok{, }\OperatorTok{-}\NormalTok{.}\DecValTok{3}\NormalTok{, .}\DecValTok{4}\NormalTok{, .}\DecValTok{6}\NormalTok{), }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+\NormalTok{s <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\FloatTok{1.5}\NormalTok{, .}\DecValTok{3}\NormalTok{, .}\DecValTok{3}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)}
+
+\NormalTok{m5 <-}\StringTok{ }\KeywordTok{VARMAsim}\NormalTok{(}\DecValTok{200}\NormalTok{, }\DataTypeTok{arlags=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{) , }\DataTypeTok{phi=}\NormalTok{ c , }\DataTypeTok{sigma=}\NormalTok{ s )}
+\NormalTok{zt5 <-}\StringTok{ }\NormalTok{m5}\OperatorTok{$}\NormalTok{series}
+
+\KeywordTok{MTSplot}\NormalTok{(zt5)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{HW1_files/figure-latex/VARMAsim-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{zt5_ccm <-}\StringTok{ }\KeywordTok{ccm}\NormalTok{(zt5, }\DataTypeTok{lag =} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "Covariance matrix:"
+##        [,1]   [,2]
+## [1,]  6.126 -0.735
+## [2,] -0.735  3.002
+## CCM at lag:  0 
+##        [,1]   [,2]
+## [1,]  1.000 -0.171
+## [2,] -0.171  1.000
+## Simplified matrix: 
+## CCM at lag:  1 
+## + . 
+## - + 
+## CCM at lag:  2 
+## + + 
+## - + 
+## CCM at lag:  3 
+## + + 
+## - +
+\end{verbatim}
+
+\includegraphics{HW1_files/figure-latex/VARMAsim-2.pdf}
+
+\begin{verbatim}
+## Hit Enter for p-value plot of individual ccm:
+\end{verbatim}
+
+\includegraphics{HW1_files/figure-latex/VARMAsim-3.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{zt5_ccm}\OperatorTok{$}\NormalTok{ccm}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##            [,1]       [,2]       [,3]       [,4]
+## [1,]  1.0000000  0.8278539  0.6067632  0.3948746
+## [2,] -0.1714692 -0.5093234 -0.6212050 -0.5971730
+## [3,] -0.1714692  0.1275983  0.3025627  0.3546755
+## [4,]  1.0000000  0.6912528  0.3637534  0.1465692
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{mq}\NormalTok{(zt5, }\DataTypeTok{lag =} \DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Ljung-Box Statistics:  
+##        m       Q(m)     df    p-value
+## [1,]     1       274       4        0
+## [2,]     2       463       8        0
+## [3,]     3       595      12        0
+## [4,]     4       689      16        0
+## [5,]     5       757      20        0
+\end{verbatim}
+
+\includegraphics{HW1_files/figure-latex/VARMAsim-4.pdf}
+
+
+\end{document}
