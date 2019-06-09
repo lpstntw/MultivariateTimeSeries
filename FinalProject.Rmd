@@ -85,7 +85,7 @@ da <- da_cpi %>%
   left_join(da_importKR) %>%
   rename(cpi = CPIAUCNS, cpi_nofood = CPILFENS, ppi = PPIACO, imp_all = XTIMVA01USM664N, oil = MCOILWTICO,
          imp_china = IMPCH, imp_tw = IMP5830, imp_hk = IMP5820, imp_jp = IMPJP, imp_kr = IMPKR) %>%
-  mutate(imp_all = imp_all/10^6) %>%
+  mutate(imp_all = imp_all/10^6, imp_china_ratio = imp_china/imp_all) %>%
   column_to_rownames()
 
 
@@ -136,22 +136,28 @@ m2 <- refECMvar1(m1, thres = 1.2)
 ```
 
 
-```{r trade substitue China Taiwan HK}
+```{r trade substitue China Taiwan Korea}
 
 da_sub_china <- da %>%
-  select(imp_china, imp_tw, imp_hk) %>%
-  mutate(imp_china = log10(imp_china), imp_tw = log10(imp_tw), imp_hk = log10(imp_hk)) %>%
+  select(imp_all, imp_china, imp_tw, imp_kr) %>%
+  mutate(imp_china = imp_china/imp_all, imp_tw = imp_tw/imp_all, imp_kr = imp_kr/imp_all) %>%
+  select(-imp_all) %>%
   drop_na()
+
+MTSplot(da_sub_china)
 
 VARorder(da_sub_china, maxp = 24) # select VAR(14)
 coint2 <- ca.jo(da_sub_china, ecdet = "const", type = "trace", K = 14, spec = "transitory")
 summary(coint2)
 
-xt <- da_sub_china$imp_china - 9.76*da_sub_china$imp_tw + 2.56*da_sub_china$imp_hk
+m3 <- VAR(diff(as.matrix(da_sub_china)), p = 13)
+m4 <- refVAR(m3, thres = 1.2)
 
+Phi_b <- m4$Phi
+Sig_b <- m4$Sigma
 
-m3 <- ECMvar1(da_sub_china, p = 14, wt = xt)
-m4 <- refECMvar1(m3, thres = 1.2)
+VARirf(Phi = Phi_b, Sig = Sig_b, lag = 18)
+
 
 ```
 
@@ -179,7 +185,7 @@ da_inflation <- da %>%
   mutate(imp_all = log10(imp_all)) %>%
   drop_na()
 
-VARorder(da_inflation, maxp = 24) # order 17
+VARorder(da_inflation, maxp = 24) # order 17 AIC 3 BIC
 adfTest(da_inflation$cpi, lags = 1, type = "c")
 adfTest(da_inflation$imp_all, lags = 2, type = "c")
 adfTest(da_inflation$oil, lags = 7, type = "c")
@@ -197,6 +203,11 @@ m10 <- refECMvar1(m9, thres = 1.2)
 m11 <- VAR(diff(as.matrix(da_inflation)), p = 16) # VAR(17-1) no cointergration only difference model
 m12 <- refVAR(m11, thres = 1.2) # aic bic better in this model
 
+Phi_a <- m12$Phi
+Sig_a <- m12$Sigma
+
+VARirf(Phi = Phi_a, Sig = Sig_a, lag = 24, orth = FALSE)
+VARirf(Phi = Phi_a, Sig = Sig_a, lag = 24)
 ```
 
 ```{r inflation trade seasonal, cache = TRUE}
@@ -251,21 +262,45 @@ da_ppi_cpi <- da %>%
 
 da_trade_oil <- da %>%
   select(cpi, ppi, imp_all, imp_china, oil) %>%
-  mutate(imp_china = log10(imp_china), imp_all = log10(imp_all)) %>%
+  mutate(imp_china = imp_china/imp_all) %>%
   drop_na() %>%
-  select(imp_all, imp_china, oil) 
+  select(imp_china, oil) 
   
 
 VARXorder(x = da_ppi_cpi, exog = da_trade_oil, maxp = 12, maxm = 3)
 
-m23 <- VARX(zt = da_ppi_cpi, p = 2, xt = da_trade_oil, m = 3)
+m23 <- VARX(zt = da_ppi_cpi, p = 3, xt = da_trade_oil, m = 3)
 m24 <- refVARX(m23, thres = 1.2)
 
 
 
 ```
 
+```{r inflation trade cn ratio}
 
+da_inflation_rchina <- da %>%
+  select(cpi, imp_china_ratio, oil) %>%
+  drop_na()
+
+MTSplot(da_inflation_rchina)
+
+VARorder(da_inflation_rchina, maxp = 24) # VAR(4) or VAR(17)
+
+ca.jo(da_inflation_rchina, ecdet = "const", type = "trace", K = 17, spec = "transitory") %>%
+  summary()
+
+bt <- da_inflation_rchina$cpi - 647.89*da_inflation_rchina$imp_china_ratio - 0.195*da_inflation_rchina$oil
+
+m25 <- ECMvar1(da_inflation_rchina, p = 17, wt = bt)
+m26 <- refECMvar1(m25, thres = 1.2) # seems ok
+```
+
+```{r inflation trade cn ratio seasonal, cache=TRUE}
+
+m27 <- sVARMA(da_inflation_rchina, order = c(0,1,2), sorder = c(0,1,1), s = 12)
+m28 <- refsVARMA(m27, thres = 1.2)
+
+```
 # Time Series analysis of trade from East Asia and inflation 
 
 Below is the plot and model of US's import from China, Taiwan HK, JP and Kr. We take the log transformation of the import value. Error Correction model with cointergration series as wess as Seasonal Model are reported here. Seasonal Model with order (0,1,3) , sorder(0, 1, 1) and s = 12 is preferred, for its lower aic and bic.
@@ -281,14 +316,16 @@ m8 <- refsVARMA(m7, thres = 1.2)
 
 ```
 
-A reduced model with only China, TW and HK is reported here. Again, ECM with cointergration and seasonal model are reported. Seasonal model is preferred
+A reduced model with only ratio of China, TW and KR is reported here. No cointergration among these series so a simple VECM and its impulse response function is reported here.
 
-```{r report china tw hk trade, include=TRUE, cache=TRUE}
 
-summary(coint2)
+```{r report china tw kr trade ratio, include=TRUE, cache=TRUE}
 
-m4 <- refECMvar1(m3, thres = 1.2)
-m6 <- refsVARMA(m5, thres = 1.2)
+MTSplot(da_sub_china)
+
+m4 <- refVAR(m3, thres = 1.2)
+
+VARirf(Phi = Phi_b, Sig = Sig_b, lag = 18)
 
 ```
 
@@ -302,27 +339,37 @@ ca.jo(da_inflation, ecdet = "const", type = "trace", K = 17, spec = "transitory"
   summary()
 
 m10 <- refECMvar1(m9, thres = 1.2)
-m12 <- refVAR(m11, thres = 1.2) # no cointergration the test is on borderline
+m12 <- refVAR(m11, thres = 1.2) # no cointergration the test value is on borderline
 m14 <- refsVARMA(m13, thres = 1.2)
 
 ```
 
-CPI, import from china and oil price is modeled. Seasonal and VEC has mixed result.
+CPI, import from china and oil price is modeled. Seasonal and VEC has mixed result. ECM with cointergration is preferred
 
-```{r report cpi import china oil, include=TRUE, cache=TRUE}
+```{r report cpi import china oil, echo=TRUE, include=TRUE, cache=TRUE}
 
 ca.jo(da_inflation_china, ecdet = "const", type = "trace", K = 14, spec = "transitory") %>%
   summary()
 
-m16 <- refECMvar1(m15, thres = 1.2)
-m22 <- refVAR(m21, thres = 1.2)
-m20 <- refsVARMA(m19, thres = 1.2)
+m16 <- refECMvar1(m15, thres = 1.2) # this is better 
+m20 <- refsVARMA(m19, thres = 1.2) # for prediction
 
 ```
 
+CPI, china trade as ratio, oil. Seasonal Behavior is salient
+
+```{r trade inflation cn ratio, echo=TRUE, include=TRUE, cache=TRUE}
+
+MTSplot(da_inflation_rchina)
+m26 <- refECMvar1(m25, thres = 1.2)
+m28 <- refsVARMA(m27, thres = 1.2) # this is prefered
+
+```
+
+
 Use trade and oil as exogenous shock to model the cpi and ppi.
 
-```{r report exogenous shock, include=TRUE, cache=TRUE}
+```{r report exogenous shock,echo=TRUE, include=TRUE, cache=TRUE}
 
 MTSplot(da_ppi_cpi)
 MTSplot(da_trade_oil)
@@ -331,4 +378,15 @@ m24 <- refVARX(m23, thres = 1.2)
 
 ```
 
+Prediction.
 
+```{r prediction, echo=TRUE, include=TRUE, cache=TRUE}
+sVARMApred(m8, orig = 0, h = 12) # trade among 5 east asian country
+sVARMApred(m6, orig = 0, h =12 ) # trade ratio among China, TW and KR
+VARpred(m12, h = 12) # CPI imp_all and oil error correction form
+sVARMApred(m14, orig = 0, h =12 ) # data the same as m12
+sVARMApred(m20, orig = 0, h =12 ) 
+sVARMApred(m28, orig = 0, h =12 )
+
+
+```
